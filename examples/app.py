@@ -18,6 +18,7 @@ def index():
 class Person(StructuredNode, utils.Node):
     """User model"""
     __validation_rules__ = {
+        "uid": fields.Str(),
         "first_name": fields.Str(),
         "last_name": fields.Str()
     }
