@@ -7,14 +7,14 @@ Build REST APIs with Neo4j and Flask, as quickly as possible!
 gREST (Graph-based REST API Framework) is a RESTful API development framework on top of Python, Flask, Neo4j and Neomodel. Its primary purpose is to ease development of RESTful APIs with little effort and miminum amount of code.
 
 ## Installation
-To install gREST, one can use setuptools (install from source) or use a python package manager (e.g. pip or easy_install).
+To install gREST, you can use setuptools (install from source) or use a python package manager (e.g. pip or easy_install).
 
 + To install from `source code`, clone the repository (you should have git installed) and then run setup.py:
   ~~~~
   $ git clone https://github.com/mostafa/grest.git
   $ python setup.py install
   ~~~~
-+ To install using a python package manager via `binary package`, simply run this command (in this case We've used pip, but any package manager is accepted as long as it uses [PyPI](https://pypi.python.org/pypi)):
++ To install using a python package manager via `binary package`, simply run this command (in this case we've used pip, but any package manager is accepted as long as it uses [PyPI](https://pypi.python.org/pypi)):
   ~~~~
   $ pip install pygrest
   ~~~~
