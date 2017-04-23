@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name="pygrest",
-      version="0.1b2",
+      version="0.1b3",
       description="Build REST APIs with Neo4j and Flask, as quickly as possible!",
       url="https://github.com/mostafa/grest",
       author="Mostafa Moradian",

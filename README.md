@@ -18,6 +18,8 @@ To install gREST, one can use setuptools (install from source) or use a python p
 
 ## Examples
 You can find an example app in [examples](https://github.com/mostafa/grest/tree/master/examples) directory.
++ `app.py` is a simple grest app that contains only one route `(/persons)`.
++ `extended_app.py` is the extended version of the above app and contains another route `(/pets)`, its relationship with `Person` model and a custom method (route) to handle `RelationshipFrom` properties. The `RelationshipTo` is automatically constructed using secondary model and secondary selection field of the `PersonsView`.
 
 ## Usage
 In order to build an API, you should make a simple Flask app (or you may already have one).
