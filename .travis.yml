@@ -25,8 +25,13 @@ install:
   - pip install flask
   - pip install flask_classful
   - pip install pytest-flask
+  - pip install pytest-runner
+  - pip install coveralls
   - python setup.py -q install
 
 script:
   - jdk_switcher use oraclejdk8
-  - py.test
+  - coverage run --source=grest setup.py test
+
+after_success:
+  coveralls

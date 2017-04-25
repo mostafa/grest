@@ -5,7 +5,8 @@ from setuptools import setup
 
 # Reading package version (the same way the sqlalchemy does)
 with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
-    package_version = re.compile(r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
+  package_version = re.compile(
+      r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
 
 setup(name="pygrest",
@@ -37,13 +38,15 @@ For more information, visit github page of `the project <https://github.com/most
           "requests"
       ],
       classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Framework :: Flask",
-        "Topic :: Software Development :: Libraries",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7"
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "Framework :: Flask",
+          "Topic :: Software Development :: Libraries",
+          "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 2.7"
       ],
       # keywords='',
+      setup_requires=['pytest-runner'],
+      tests_require=['pytest', 'pytest-flask'],
       zip_safe=False)
