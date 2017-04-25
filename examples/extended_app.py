@@ -5,7 +5,7 @@ import neomodel
 from neomodel import (StructuredNode, StringProperty,
                       UniqueIdProperty, RelationshipFrom, RelationshipTo)
 from webargs import fields
-from grest import grest, utils, global_config
+from grest import GRest, utils, global_config
 import logging
 import os
 
@@ -41,7 +41,7 @@ class Person(StructuredNode, utils.Node):
     pets = RelationshipTo(Pet, "HAS_PET")
 
 
-class PersonsView(grest):
+class PersonsView(GRest):
     """User's View (/users)"""
     __model__ = {"primary": Person,
                  "secondary": {
@@ -53,7 +53,7 @@ class PersonsView(grest):
                            }}
 
 
-class PetsView(grest):
+class PetsView(GRest):
     """Pet's View (/pets)"""
     __model__ = {"primary": Pet}
     __selection_field__ = {"primary": "pet_id"}

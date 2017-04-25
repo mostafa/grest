@@ -2,7 +2,7 @@ from flask import Flask
 import neomodel
 from neomodel import StructuredNode, StringProperty, UniqueIdProperty
 from webargs import fields
-from grest import grest, utils, global_config
+from grest import GRest, utils, global_config
 import logging
 import os
 
@@ -28,7 +28,7 @@ class Person(StructuredNode, utils.Node):
     last_name = StringProperty()
 
 
-class PersonsView(grest):
+class PersonsView(GRest):
     """User's View (/users)"""
     __model__ = {"primary": Person}
     __selection_field__ = {"primary": "uid"}
