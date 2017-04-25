@@ -1,7 +1,15 @@
+import re
+from os.path import join, dirname
 from setuptools import setup
 
+
+# Reading package version (the same way the sqlalchemy does)
+with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
+    package_version = re.compile(r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
+
+
 setup(name="pygrest",
-      version="0.1b3",
+      version=package_version,
       description="Build REST APIs with Neo4j and Flask, as quickly as possible!",
       url="https://github.com/mostafa/grest",
       author="Mostafa Moradian",
