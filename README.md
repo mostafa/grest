@@ -1,4 +1,6 @@
 # gREST
+
+[![Join the chat at https://gitter.im/pygrest/Lobby](https://badges.gitter.im/pygrest/Lobby.svg)](https://gitter.im/pygrest/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Build REST APIs with Neo4j and Flask, as quickly as possible!
 
 [![PyPI version](https://badge.fury.io/py/pygrest.svg)](https://badge.fury.io/py/pygrest)
