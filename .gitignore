@@ -89,3 +89,6 @@ ENV/
 .ropeproject
 
 register_package_pypi.bat
+
+# jet brains
+.idea
