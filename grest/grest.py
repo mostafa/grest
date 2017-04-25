@@ -282,7 +282,7 @@ class grest(FlaskView):
                 # a single item is going to be updated(/replaced) with the
                 # provided JSON data
                 selected_item = primary_model.nodes.get_or_none(
-                    **{primary_id: str(markupsafe.escape(primary_id))})
+                    **{primary_selection_field: str(markupsafe.escape(primary_id))})
 
                 if (selected_item):
                     # parse input data (validate or not!)
