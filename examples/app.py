@@ -9,14 +9,6 @@ from webargs import fields
 from grest import GRest, utils, global_config
 
 
-app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-    return "Hello World"
-
-
 # noinspection PyAbstractClass
 class Person(StructuredNode, utils.Node):
     """User model"""

@@ -1,6 +1,6 @@
+import json
 import pytest
 from examples.extended_app import create_app
-import json
 
 
 uid = ""
@@ -26,7 +26,8 @@ def test_api_post_person(client):
     """PersonsView:post"""
     global uid
     res = client.post("/persons",
-                      data=json.dumps({"first_name": "test1", "last_name": "test2"}),
+                      data=json.dumps(
+                          {"first_name": "test1", "last_name": "test2"}),
                       headers={"Content-Type": "application/json"})
     assert res.status_code == 200
     if ("uid" in res.json):

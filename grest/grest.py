@@ -8,8 +8,8 @@ from webargs.flaskparser import parser
 from webargs import fields
 from autologging import logged
 
-from grest.global_config import QUERY_LIMIT
-from grest.utils import authenticate, authorize
+from .global_config import QUERY_LIMIT
+from .utils import authenticate, authorize
 
 
 @logged
