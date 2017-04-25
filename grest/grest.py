@@ -1,6 +1,6 @@
 import markupsafe
 import inflect
-from flask import jsonify, request, g
+from flask import jsonify, request
 from flask_classful import FlaskView, route
 from neomodel import db, StructuredNode
 from neomodel.exception import UniqueProperty, DoesNotExist
@@ -8,7 +8,7 @@ from webargs.flaskparser import parser
 from webargs import fields
 from autologging import logged
 
-from grest.global_config import DEBUG, QUERY_LIMIT
+from grest.global_config import QUERY_LIMIT
 from grest.utils import authenticate, authorize
 
 
@@ -31,6 +31,7 @@ class GRest(FlaskView):
             }
 
             # parse input data (validate or not!)
+            # noinspection PyBroadException
             try:
                 query_data = parser.parse(validation_rules, request)
             except:
@@ -183,7 +184,7 @@ class GRest(FlaskView):
                 # user wants to add a new item
                 try:
                     # parse input data (validate or not!)
-                    if (primary_model.__validation_rules__):
+                    if primary_model.__validation_rules__:
                         try:
                             json_data = parser.parse(
                                 primary_model.__validation_rules__, request)
@@ -195,7 +196,7 @@ class GRest(FlaskView):
 
                     item = primary_model.nodes.get_or_none(**json_data)
 
-                    if (not item):
+                    if not item:
                         with db.transaction:
                             item = primary_model(**json_data).save()
                             # if (primary_model == Post and g.user):
@@ -226,13 +227,13 @@ class GRest(FlaskView):
 
                         related_item = secondary_selected_item in relation.all()
 
-                        if (related_item):
+                        if related_item:
                             return jsonify(errors=["Relation exists!"]), 409
                         else:
                             with db.transaction:
                                 related_item = relation.connect(
                                     secondary_selected_item)
-                            if (related_item):
+                            if related_item:
                                 return jsonify(result=["OK"])
                             else:
                                 return jsonify(errors=["Selected " + secondary_model.__name__.lower(
@@ -286,6 +287,7 @@ class GRest(FlaskView):
                 if selected_item:
                     # parse input data (validate or not!)
                     if primary_model.__validation_rules__:
+                        # noinspection PyBroadException
                         try:
                             json_data = parser.parse(
                                 primary_model.__validation_rules__, request)
@@ -328,8 +330,7 @@ class GRest(FlaskView):
                     if primary_selected_item and secondary_selected_item:
                         if hasattr(primary_selected_item, secondary_model_name):
 
-                            relation = getattr(primary_selected_item,
-                                               secondary_model_name)
+                            relation = getattr(primary_selected_item, secondary_model_name)
 
                             all_relations = relation.all()
 
@@ -372,6 +373,7 @@ class GRest(FlaskView):
             primary_selection_field = self.__selection_field__.get("primary")
 
             if primary_model.__validation_rules__:
+                # noinspection PyBroadException
                 try:
                     json_data = parser.parse(
                         primary_model.__validation_rules__, request)
@@ -458,10 +460,7 @@ class GRest(FlaskView):
 
                     if primary_selected_item and secondary_selected_item:
                         if hasattr(primary_selected_item, secondary_model_name):
-
-                            relation = getattr(primary_selected_item,
-                                               secondary_model_name)
-
+                            relation = getattr(primary_selected_item, secondary_model_name)
                             related_item = secondary_selected_item in relation.all()
 
                             if not related_item:
