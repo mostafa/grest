@@ -234,7 +234,7 @@ class grest(FlaskView):
                                 related_item = relation.connect(
                                     secondary_selected_item)
                             if (related_item):
-                                return jsonify(result=["OK"])
+                                return jsonify(result="OK")
                             else:
                                 return jsonify(errors=["Selected " + secondary_model.__name__.lower(
                                 ) + " does not exist or the provided information is invalid."]), 404
@@ -346,7 +346,7 @@ class grest(FlaskView):
                                     secondary_selected_item)
 
                             if (related_item):
-                                return jsonify(result=["OK"])
+                                return jsonify(result="OK")
                             else:
                                 return jsonify(errors=["Selected " + secondary_model.__name__.lower(
                                 ) + " does not exist or the provided information is invalid."]), 404
@@ -478,7 +478,7 @@ class grest(FlaskView):
                                         secondary_selected_item)
 
                                 if (secondary_selected_item not in relation.all()):
-                                    return jsonify(result=["OK"])
+                                    return jsonify(result="OK")
                                 else:
                                     return jsonify(errors=["There was an error removing the selected relation."]), 500
                         else:

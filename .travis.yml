@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.7"
+  - "pypy"
+services:
+  - neo4j
+env:
+  - FLASK=0.10.1
+install:
+  - python setup.py -q install
+script: py.test
