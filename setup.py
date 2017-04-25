@@ -11,7 +11,7 @@ with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
 setup(name="pygrest",
       version=package_version,
       description="Build REST APIs with Neo4j and Flask, as quickly as possible!",
-      url="https://github.com/mostafa/grest",
+      url="https://github.com/mostafa/GRest",
       author="Mostafa Moradian",
       author_email="mostafamoradian0@gmail.com",
       license="GPLv3",
@@ -25,7 +25,7 @@ framework on top of Python, Flask, Neo4j and Neomodel. Its primary
 purpose is to ease development of RESTful APIs with little effort and
 miminum amount of code.
 
-For more information, visit github page of `the project <https://github.com/mostafa/grest>`_.""",
+For more information, visit github page of `the project <https://github.com/mostafa/GRest>`_.""",
       install_requires=[
           "flask",
           "flask_classful",

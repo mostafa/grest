@@ -1,13 +1,23 @@
+import logging
+import os
+
 from flask import Flask
 import neomodel
 from neomodel import StructuredNode, StringProperty, UniqueIdProperty
 from webargs import fields
-from grest import grest, utils, global_config
-import logging
-import logging.handlers
-import os
+
+from grest import GRest, utils, global_config
 
 
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    return "Hello World"
+
+
+# noinspection PyAbstractClass
 class Person(StructuredNode, utils.Node):
     """User model"""
     __validation_rules__ = {
@@ -21,7 +31,7 @@ class Person(StructuredNode, utils.Node):
     last_name = StringProperty()
 
 
-class PersonsView(grest):
+class PersonsView(GRest):
     """User's View (/users)"""
     __model__ = {"primary": Person}
     __selection_field__ = {"primary": "uid"}
@@ -38,7 +48,7 @@ def create_app():
     neomodel.config.AUTO_INSTALL_LABELS = True
     neomodel.config.FORCE_TIMEZONE = True  # default False
 
-    if (global_config.LOG_ENABLED):
+    if global_config.LOG_ENABLED:
         logging.basicConfig(filename=os.path.abspath(os.path.join(
             global_config.LOG_LOCATION, global_config.LOG_FILENAME)), format=global_config.LOG_FORMAT)
         app.ext_logger = logging.getLogger()

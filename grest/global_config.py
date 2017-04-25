@@ -1,6 +1,7 @@
 import os
 import logging
 
+
 DEBUG = os.environ.get("DEBUG") or True
 
 IP_ADDRESS = os.environ.get("IP_ADDRESS") or "0.0.0.0"
@@ -18,7 +19,7 @@ ACCEPT = "ACCEPT"
 
 LOG_ENABLED = False
 LOG_LOCATION = os.environ.get("LOG_LOCATION") or "."
-LOG_FILENAME = os.environ.get("LOG_FILENAME") or "grest.log"
+LOG_FILENAME = os.environ.get("LOG_FILENAME") or "GRest.log"
 LOG_LEVEL = os.environ.get("LOG_LEVEL") or logging.INFO
 LOG_MAX_BYTES = os.environ.get("LOG_MAX_BYTES") or 1000000  # 1 Megabyte
 LOG_BACKUP_COUNT = os.environ.get("LOG_BACKUP_COUNT") or 100
