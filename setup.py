@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 # Reading package version (the same way the sqlalchemy does)
-with open(join(dirname(__file__), 'GRest', '__init__.py')) as v_file:
+with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
     package_version = re.compile(r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
 
@@ -15,7 +15,7 @@ setup(name="pygrest",
       author="Mostafa Moradian",
       author_email="mostafamoradian0@gmail.com",
       license="GPLv3",
-      packages=["GRest"],
+      packages=["grest"],
       long_description="""
 gREST
 =====
