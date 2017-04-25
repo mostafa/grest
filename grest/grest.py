@@ -285,7 +285,7 @@ class GRest(FlaskView):
 
                 if selected_item:
                     # parse input data (validate or not!)
-                    if (primary_model.__validation_rules__):
+                    if primary_model.__validation_rules__:
                         try:
                             json_data = parser.parse(
                                 primary_model.__validation_rules__, request)
@@ -295,14 +295,14 @@ class GRest(FlaskView):
                     else:
                         json_data = request.get_json(silent=True)
 
-                    if (json_data):
+                    if json_data:
                         with db.transaction:
                             # delete and create a new one
                             selected_item.delete()  # delete old node and its relations
                             created_item = primary_model(
                                 **json_data).save()  # create a new node
 
-                            if (created_item):
+                            if created_item:
                                 # if (self.__model__ == Post and g.user):
                                 #     created_item.creator.connect(g.user)
                                 #     created_item.save()
@@ -333,8 +333,6 @@ class GRest(FlaskView):
 
                             all_relations = relation.all()
 
-                            related_item = None
-
                             with db.transaction:
                                 # remove all relationships
                                 for each_relation in all_relations:
@@ -344,7 +342,7 @@ class GRest(FlaskView):
                                 related_item = relation.connect(
                                     secondary_selected_item)
 
-                            if (related_item):
+                            if related_item:
                                 return jsonify(result=["OK"])
                             else:
                                 return jsonify(errors=["Selected " + secondary_model.__name__.lower(
@@ -353,7 +351,8 @@ class GRest(FlaskView):
                             return jsonify(errors=["Selected " + secondary_model.__name__.lower(
                             ) + " does not exist or the provided information is invalid."]), 404
                     else:
-                        return jsonify(errors=["One of the selected models does not exist or the provided information is invalid."]), 404
+                        return jsonify(errors=[
+                            "One of the selected models does not exist or the provided information is invalid."]), 404
 
                 return jsonify(errors=["Invalid information provided."]), 404
         except DoesNotExist as e:
@@ -386,16 +385,15 @@ class GRest(FlaskView):
                 selected_item = primary_model.nodes.get_or_none(
                     **{primary_selection_field: str(markupsafe.escape(primary_id))})
 
-                if (selected_item):
+                if selected_item:
                     # FIXME: validate all input (JSON) data
-                    if (json_data):
-                        updated_item = None
+                    if json_data:
                         with db.transaction:
                             selected_item.__dict__.update(json_data)
                             updated_item = selected_item.save()
                             selected_item.refresh()
 
-                        if (updated_item):
+                        if updated_item:
                             return jsonify(result="OK")
                         else:
                             return jsonify(errors=["There was an error updating your desired item."]), 500
@@ -440,15 +438,12 @@ class GRest(FlaskView):
                 selected_item = primary_model.nodes.get_or_none(
                     **{primary_selection_field: str(markupsafe.escape(primary_id))})
 
-                if (selected_item):
-                    is_deleted = False
+                if selected_item:
                     with db.transaction:
-                        is_deleted = selected_item.delete()
-
-                    if (is_deleted):
-                        return jsonify(result="OK")
-                    else:
-                        return jsonify(errors=["There was an error deleting the item."]), 500
+                        if selected_item.delete():
+                            return jsonify(result="OK")
+                        else:
+                            return jsonify(errors=["There was an error deleting the item."]), 500
                 else:
                     return jsonify(errors=["Item does not exist."]), 404
             else:
