@@ -1,4 +1,4 @@
-# gREST
+[![](https://rawgit.com/mostafa/grest/master/assets/gREST-logo.png)](https://github.com/mostafa/grest)
 
 Build REST APIs with Neo4j and Flask, as quickly as possible!
 
