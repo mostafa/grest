@@ -35,3 +35,11 @@ script:
 
 after_success:
   coveralls
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/29563b0d22ad98eb37c4
+    on_success: change
+    on_failure: always
+    on_start: never
