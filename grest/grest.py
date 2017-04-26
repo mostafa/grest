@@ -14,6 +14,36 @@ from .utils import authenticate, authorize
 
 @logged
 class GRest(FlaskView):
+    """
+    Base class for graph-based RESTful API development
+    :param __model__: create mapping of nodes, relations and endpoints
+    :type: dict
+    :param __selection_field__: create mapping of selection fields for each node/relation
+    :type: dict
+
+    The are two keys to consider:
+    __model__:
+        primary: model containing source node
+        secondary: mapping of endpoints to destination nodes
+
+    For example, you have a User node and Post node.
+    User posts a Post, and may like other's posts, so your __model__
+    would look like this:
+        __model__ = {"primary": User,
+                     "secondary": {
+                        "posts": Post,
+                        "likes": Post
+                     }}
+
+    The selection field is the unique field that signifies a specific node
+    or its related node(s). It works like the __primary_key__ and __foreign_key__
+    property in other ORMs. The above example is completed with the following mapping: 
+    __selection_field__ = {"primary": "user_id",
+                           "secondary": {
+                                "posts": "post_id",
+                                "likes": "post_id"
+                           }}
+    """
     __model__ = {"primary": StructuredNode, "secondary": {}}
     __selection_field__ = {"primary": "id", "secondary": {}}
 
@@ -23,6 +53,13 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def index(self):
+        """
+        Returns an specified number of nodes, with pagination (skip/limit)
+        :param skip: skips the specified amount of nodes (offset/start)
+        :type: int
+        :param limit: number of nodes to return (shouldn't be more than total nodes)
+        :type: int
+        """
         try:
             primary_model = self.__model__.get("primary")
             validation_rules = {
@@ -75,6 +112,20 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def get(self, primary_id, secondary_model_name=None, secondary_id=None):
+        """
+        Returns an specified node or its related node
+        :param primary_id: unique id of the primary (source) node (model)
+        :type: str
+        :param secondary_model_name: name of the secondary (destination) node (model)
+        :type: str
+        :param secondary_id: unique id of the secondary (destination) node (model)
+        :type: str
+
+        The equivalent cypher query would be (as an example):
+        MATCH (u:User) WHERE n.user_id = "123456789" RETURN n
+        Or:
+        MATCH (u:User)-[LIKES]->(p:Post) WHERE n.user_id = "123456789" RETURN p
+        """
         try:
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
@@ -161,6 +212,15 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def post(self, primary_id=None, secondary_model_name=None, secondary_id=None):
+        """
+        Updates an specified node or its relation (creates relation, if none exists)
+        :param primary_id: unique id of the primary (source) node (model)
+        :type: str
+        :param secondary_model_name: name of the secondary (destination) node (model)
+        :type: str
+        :param secondary_id: unique id of the secondary (destination) node (model)
+        :type: str
+        """
         try:
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
@@ -260,6 +320,15 @@ class GRest(FlaskView):
     @authorize
     # @db.transaction
     def put(self, primary_id, secondary_model_name=None, secondary_id=None):
+        """
+        Deletes and inserts a new node or a new relation
+        :param primary_id: unique id of the primary (source) node (model)
+        :type: str
+        :param secondary_model_name: name of the secondary (destination) node (model)
+        :type: str
+        :param secondary_id: unique id of the secondary (destination) node (model)
+        :type: str
+        """
         try:
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
@@ -367,8 +436,13 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def patch(self, primary_id):
-        """Partially update a model. Note: updating
-        relations via PATCH is not supported."""
+        """
+        Partially updates a node
+        :param primary_id: unique id of the primary (source) node (model)
+        :type: str
+
+        Note: updating relations via PATCH is not supported.
+        """
         try:
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
@@ -418,6 +492,15 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def delete(self, primary_id, secondary_model_name=None, secondary_id=None):
+        """
+        Deletes a node or its specific relation
+        :param primary_id: unique id of the primary (source) node (model)
+        :type: str
+        :param secondary_model_name: name of the secondary (destination) node (model)
+        :type: str
+        :param secondary_id: unique id of the secondary (destination) node (model)
+        :type: str
+        """
         try:
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
