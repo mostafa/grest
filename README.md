@@ -67,9 +67,9 @@ As you can see, we have imported `utils` from `grest`, so that we can use the `N
 
 Then we should inherit from `grest` to make a new view of our model (so that it accepts RESTful verbs):
 ~~~~
-from grest import grest
+from grest import GRest
 
-class PersonsView(grest):
+class PersonsView(GRest):
     __model__ = {"primary": Person}
     __selection_field__ = {"primary": "uid"}
 ~~~~
