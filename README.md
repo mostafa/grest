@@ -83,6 +83,8 @@ PersonsView.register(app, route_base="/persons", trailing_slash=False)
 User input should never be trusted, so input validation is done through using [webargs](https://github.com/sloria/webargs):
 To include input validation in each model, you should include `__validation_rules__` property, which is a mapping dictionary of keys (models' fields) and values (data type and validation rules).
 
+`__validation_rules__` property is there for customization of validation rules, with the new release v0.2.1, validation rules are inferred and constructred from your models' properties, so it is unnecessary to define it in most cases.
+
 ~~~~
 from neomodel import (StructuredNode, UniqueIdProperty, StringProperty)
 from grest import utils
