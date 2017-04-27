@@ -1,23 +1,33 @@
-from flask import request, g, jsonify, current_app as app
-import markupsafe
-import requests
 from datetime import datetime
 from functools import wraps
 import json
 from itertools import chain
 import copy
-from neomodel import relationship_manager
+
+from flask import request, g, jsonify, current_app as app
+import markupsafe
+import requests
+from webargs import fields
+from neomodel import (relationship_manager, Property, StringProperty,
+                      DateTimeProperty, DateProperty, EmailProperty,
+                      BooleanProperty, ArrayProperty, IntegerProperty,
+                      UniqueIdProperty, JSONProperty)
 # import logging
 # import os
 import global_config
 
 
 class Node(object):
-    __validation_rules__ = None
+    __validation_rules__ = {}
+
+    def __init__(self):
+        super(self.__class__, self)
+        self.__validation_rules__ = self.validation_rules
 
     def serialize(self):
         properties = copy.deepcopy(self.__dict__)
-        blocked_properties = ["id", "password", "current_otp"]
+        blocked_properties = ["id", "password",
+                              "current_otp", "validation_rules"]
 
         removable_keys = set()
         for prop in properties.keys():
@@ -42,39 +52,60 @@ class Node(object):
 
         return properties
 
-   # @property
-    # def __validation_rules__(self):
-    #     # if a class already has validation rules, return that!
-    #     if (len(self.__validation_rules__) > 0):
-    #         return self.__validation_rules__
+    @property
+    def validation_rules(self):
+        """
+        if the user has defined validation rules,
+        return that, otherwise construct a set of
+        predefined rules and return it.
 
-    #     model_types = [
-    #         # JSONProperty
-    #         StringProperty, DateTimeProperty, DateProperty,
-    #         EmailProperty, BooleanProperty,
-    #         ArrayProperty, IntegerProperty
-    #     ]
+        All internal GRest methods should use this property.
+        """
 
-    #     model_mapping = {
-    #         IntegerProperty: fields.Int,
-    #         StringProperty: fields.Str,
-    #         BooleanProperty: fields.Bool,
-    #         DateTimeProperty: fields.DateTime,
-    #         DateProperty: fields.Date,
-    #         EmailProperty: fields.Str,
-    #         ArrayProperty: fields.Raw,
-    #         # JSONProperty: fields.Raw,
-    #     }
+        if len(self.__validation_rules__) > 0:
+            # there is a set of user-defined validation rules
+            return self.__validation_rules__
 
-    #     self.__validation_rules__ = {}
-    #     all_fields = dir(self)
-    #     for field in all_fields:
-    #         if type(getattr(self, field)) in model_types:
-    #             if not (field.startswith("_") and field.endswith("_")):
-    #                 self.__validation_rules__[field] = model_mapping[
-    #                     getattr(self, field)]()
+        model_types = [
+            StringProperty, DateTimeProperty, DateProperty,
+            EmailProperty, BooleanProperty, UniqueIdProperty,
+            ArrayProperty, IntegerProperty, JSONProperty
+        ]
 
-    #     return self.__validation_rules__
+        model_mapping = {
+            IntegerProperty: fields.Int,
+            StringProperty: fields.Str,
+            BooleanProperty: fields.Bool,
+            DateTimeProperty: fields.DateTime,
+            DateProperty: fields.Date,
+            EmailProperty: fields.Email,
+            ArrayProperty: fields.List,
+            JSONProperty: fields.Dict,
+            UniqueIdProperty: fields.UUID
+        }
+
+        name = 0
+        value = 1
+
+        for field in self.__all_properties__:
+            if type(field[value]) in model_types:
+                if isinstance(field[value], ArrayProperty):
+                    if field[value].unique_index:
+                        # what it contains: Array of *String*
+                        container = model_mapping[
+                            type(field[value].unique_index)]
+                    else:
+                        # defaults to Raw for untyped ArrayProperty
+                        container = fields.Raw
+
+                    self.__validation_rules__[field[name]] = model_mapping[
+                        type(field[value])](container,
+                                            required=field[value].required)
+                else:
+                    self.__validation_rules__[field[name]] = model_mapping[
+                        type(field[value])](required=field[value].required)
+
+        return self.__validation_rules__
 
 
 def authenticate(func):

@@ -62,7 +62,7 @@ class GRest(FlaskView):
         """
         try:
             primary_model = self.__model__.get("primary")
-            validation_rules = {
+            __validation_rules__ = {
                 "skip": fields.Int(required=False, validate=lambda s: s >= 0),
                 "limit": fields.Int(required=False, validate=lambda l: l >= 1 and l <= 100)
             }
@@ -70,7 +70,7 @@ class GRest(FlaskView):
             # parse input data (validate or not!)
             # noinspection PyBroadException
             try:
-                query_data = parser.parse(validation_rules, request)
+                query_data = parser.parse(__validation_rules__, request)
             except:
                 self.__log.debug("Validation failed!")
                 return jsonify(errors=["One or more of the required fields is missing or incorrect."]), 422
