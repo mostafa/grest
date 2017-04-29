@@ -254,6 +254,11 @@ class GRest(FlaskView):
                     else:
                         json_data = request.get_json(silent=True)
 
+                    if not json_data:
+                        # if a non-existent property is present or misspelled,
+                        # the json_data property is empty!
+                        return jsonify(errors=["A property is invalid, missing or misspelled!"]), 409
+
                     item = primary_model.nodes.get_or_none(**json_data)
 
                     if not item:
@@ -282,8 +287,7 @@ class GRest(FlaskView):
                 if primary_selected_item and secondary_selected_item:
                     if hasattr(primary_selected_item, secondary_model_name):
 
-                        relation = getattr(primary_selected_item,
-                                           secondary_model_name)
+                        relation = getattr(primary_selected_item, secondary_model_name)
 
                         related_item = secondary_selected_item in relation.all()
 
@@ -366,6 +370,11 @@ class GRest(FlaskView):
                             return jsonify(errors=["One or more of the required fields is missing or incorrect."]), 422
                     else:
                         json_data = request.get_json(silent=True)
+
+                    if not json_data:
+                        # if a non-existent property is present or misspelled,
+                        # the json_data property is empty!
+                        return jsonify(errors=["A property is invalid, missing or misspelled!"]), 409
 
                     if json_data:
                         with db.transaction:
@@ -457,6 +466,11 @@ class GRest(FlaskView):
                     return jsonify(errors=["One or more of the required fields is missing or incorrect."]), 422
             else:
                 json_data = request.get_json(silent=True)
+
+            if not json_data:
+                # if a non-existent property is present or misspelled,
+                # the json_data property is empty!
+                return jsonify(errors=["A property is invalid, missing or misspelled!"]), 409
 
             if primary_id:
                 selected_item = primary_model.nodes.get_or_none(
