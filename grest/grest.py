@@ -3,7 +3,7 @@ import inflect
 from flask import jsonify, request
 from flask_classful import FlaskView, route
 from neomodel import db, StructuredNode
-from neomodel.exception import UniqueProperty, DoesNotExist
+from neomodel.exception import RequiredProperty, UniqueProperty, DoesNotExist
 from webargs.flaskparser import parser
 from webargs import fields
 from autologging import logged
@@ -63,8 +63,9 @@ class GRest(FlaskView):
         try:
             primary_model = self.__model__.get("primary")
             __validation_rules__ = {
-                "skip": fields.Int(required=False, validate=lambda s: s >= 0),
-                "limit": fields.Int(required=False, validate=lambda l: l >= 1 and l <= 100)
+                "skip": fields.Int(required=False, validate=lambda s: s >= 0, missing=0),
+                "limit": fields.Int(required=False, validate=lambda l: l >= 1 and l <= 100),
+                "order_by": fields.Str(required=False, missing="?")
             }
 
             # parse input data (validate or not!)
@@ -78,14 +79,25 @@ class GRest(FlaskView):
             start = query_data.get("skip")
             if start:
                 start = int(start)
-            else:
-                start = 0
 
             count = query_data.get("limit")
             if count:
                 count = start + int(count)
             else:
                 count = start + QUERY_LIMIT
+
+            all_properties = [prop[0] for prop in primary_model.__all_properties__]
+
+            order_by = str(markupsafe.escape(query_data.get("order_by"))) or "?"
+
+            if order_by:
+                if order_by.startswith("-"):
+                    order_by_prop = order_by[1:]
+                else:
+                    order_by_prop = order_by
+
+                if order_by_prop not in all_properties and order_by_prop != "?":
+                    return jsonify(errors=["Selected property for ordering is invalid."]), 404
 
             total_items = len(primary_model.nodes)
 
@@ -95,7 +107,7 @@ class GRest(FlaskView):
             if start > total_items:
                 return jsonify(errors=["One or more of the required fields is incorrect."]), 422
 
-            page = primary_model.nodes[start:count]
+            page = primary_model.nodes.order_by(order_by)[start:count]
 
             if page:
                 return jsonify(**{inflect.engine().plural(primary_model.__name__.lower()):
@@ -314,6 +326,9 @@ class GRest(FlaskView):
         except DoesNotExist as e:
             self.__log.exception(e)
             return jsonify(errors=["The requested item or relation does not exist."]), 404
+        except RequiredProperty as e:
+            self.__log.exception(e)
+            return jsonify(errors=["A required property is missing."]), 500
         except Exception as e:
             self.__log.exception(e)
             return jsonify(errors=["An error occurred while processing your request."]), 500
