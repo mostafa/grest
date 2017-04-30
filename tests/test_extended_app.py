@@ -7,6 +7,13 @@ uid = ""
 pet_id = ""
 
 
+def test_api_index(client):
+    res = client.get("/persons",
+                     query_string={"skip": 10, "limit": 1},
+                     headers={"Content-Type": "application/json"})
+    assert res.status_code == 404
+
+
 def test_api_index_validation_error(client):
     res = client.get("/persons",
                      query_string={"skip": "string", "limit": "string"},
@@ -45,27 +52,53 @@ def test_api_index_request_non_existing_item(client):
     assert "errors" in res.json
 
 
-def test_api_index_skip_limit(client):
+def test_api_index_skip_limit_order_by(client):
     uid_list = []
 
     for i in range(1, 11):
         res = client.post("/persons",
                           data=json.dumps(
-                              {"first_name": str(i), "last_name": str(i + 1)}),
+                              {"first_name": str(i), "last_name": str(i + 1),
+                               "phone_number": str(i * 2)}),
                           headers={"Content-Type": "application/json"})
         if "uid" in res.json:
             uid_list.append(res.json["uid"])
 
     assert len(uid_list) == 10
 
+    # skip more than available
     res = client.get("/persons",
-                     query_string={"skip": 1, "limit": 1},
+                     query_string={"skip": 11},
+                     headers={"Content-Type": "application/json"})
+    assert res.status_code == 422
+    assert "errors" in res.json
+
+    # skip one item and return only one, ordered by first_name
+    res = client.get("/persons",
+                     query_string={"skip": 1, "limit": 1,
+                                   "order_by": "first_name"},
                      headers={"Content-Type": "application/json"})
     assert res.status_code == 200
     assert "people" in res.json
     assert len(res.json["people"]) == 1
-    assert res.json["people"][0]["first_name"] == "2"
-    assert res.json["people"][0]["last_name"] == "3"
+    assert res.json["people"][0]["first_name"] == "10"
+    assert res.json["people"][0]["last_name"] == "11"
+
+    # reverse sort order
+    res = client.get("/persons",
+                     query_string={"skip": 1, "limit": 1,
+                                   "order_by": "-first_name"},
+                     headers={"Content-Type": "application/json"})
+    assert res.status_code == 200
+    assert "people" in res.json
+
+    # order by non existing property
+    res = client.get("/persons",
+                     query_string={"skip": 1, "limit": 1,
+                                   "order_by": "prop1"},
+                     headers={"Content-Type": "application/json"})
+    assert res.status_code == 404
+    assert "errors" in res.json
 
     for uid in uid_list:
         res = client.delete("/persons/" + uid)
@@ -92,34 +125,35 @@ def test_api_post_person(client):
     global uid
     res = client.post("/persons",
                       data=json.dumps(
-                          {"first_name": "test1", "last_name": "test2"}),
+                          {"first_name": "test1", "last_name": "test2", "phone_number": "123"}),
                       headers={"Content-Type": "application/json"})
     assert res.status_code == 200
     if ("uid" in res.json):
         uid = res.json["uid"]
     assert "uid" in res.json
 
+    # post existing person
+    res = client.post("/persons",
+                      data=json.dumps(
+                          {"first_name": "test1", "last_name": "test2", "phone_number": "123"}),
+                      headers={"Content-Type": "application/json"})
+    assert res.status_code == 409
+    assert "errors" in res.json
 
-def test_api_post_existing_person(client):
-    """PersonsView:post"""
+    # test unique property exception
+    res = client.post("/persons",
+                      data=json.dumps(
+                          {"first_name": "test1", "last_name": "test2", "phone_number": "123"}),
+                      headers={"Content-Type": "application/json"})
+    assert res.status_code == 409
+    assert "errors" in res.json
+
+
+def test_api_get_specific_person(client):
+    """PetsView:get"""
     global uid
-    res = client.post("/persons",
-                      data=json.dumps(
-                          {"first_name": "test1", "last_name": "test2"}),
-                      headers={"Content-Type": "application/json"})
-    assert res.status_code == 409
-    assert "errors" in res.json
-
-
-def test_api_post_non_existing_property(client):
-    """PersonsView:post"""
-    res = client.post("/persons",
-                      data=json.dumps(
-                          {"prop1": "test"}),
-                      headers={"Content-Type": "application/json"})
-    print res.json
-    assert res.status_code == 409
-    assert "errors" in res.json
+    res = client.get("/persons/" + uid)
+    assert res.status_code == 200
 
 
 def test_api_post_validation_errors(client):
@@ -150,6 +184,22 @@ def test_api_post_person_adopts_pet(client):
     res = client.post("/persons/" + uid + "/pets/" + pet_id)
     assert res.status_code == 200
     assert res.json == {"result": "OK"}
+
+
+def test_api_post_person_adopts_pet_error(client):
+    """PersonsView:post"""
+    global pet_id, uid
+    res = client.post("/persons/" + uid + "/pets/" + pet_id)
+    assert res.status_code == 409
+    assert res.json == {"errors": ["Relation exists!"]}
+
+
+def test_api_post_person_buys_nonexisting_car(client):
+    """PersonsView:post"""
+    global uid
+    res = client.post("/persons/" + uid + "/cars/12323123123")
+    assert res.status_code == 404
+    assert "errors" in res.json
 
 
 def test_api_get_owner_of_pet(client):

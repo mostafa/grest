@@ -21,14 +21,15 @@ class Pet(StructuredNode, utils.Node):
 class Person(StructuredNode, utils.Node):
     """User model"""
     __validation_rules__ = {
-        "uid": fields.Str(),
         "first_name": fields.Str(),
-        "last_name": fields.Str()
+        "last_name": fields.Str(),
+        "phone_number": fields.Str(required=True)
     }
 
     uid = UniqueIdProperty()
     first_name = StringProperty()
     last_name = StringProperty()
+    phone_number = StringProperty(unique_index=True, required=True)
 
     pets = RelationshipTo(Pet, "HAS_PET")
 
