@@ -19,6 +19,7 @@ import global_config
 
 class Node(object):
     __validation_rules__ = {}
+    __filtered_fields__ = []
 
     def __init__(self):
         super(self.__class__, self)
@@ -28,6 +29,9 @@ class Node(object):
         properties = copy.deepcopy(self.__dict__)
         blocked_properties = ["id", "password",
                               "current_otp", "validation_rules"]
+
+        if self.__filtered_fields__:
+            blocked_properties.extend(self.__filtered_fields__)
 
         removable_keys = set()
         for prop in properties.keys():

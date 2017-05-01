@@ -31,6 +31,8 @@ class Person(StructuredNode, utils.Node):
     last_name = StringProperty()
     phone_number = StringProperty(unique_index=True, required=True)
 
+    secret_field = StringProperty(default="secret", required=False)
+
     pets = RelationshipTo(Pet, "HAS_PET")
 
 
@@ -44,6 +46,7 @@ class PersonsView(GRest):
                            "secondary": {
                                "pets": "pet_id"
                            }}
+    __filtered_fields__ = ["secret_field"]
 
 
 class PetsView(GRest):

@@ -125,12 +125,16 @@ def test_api_post_person(client):
     global uid
     res = client.post("/persons",
                       data=json.dumps(
-                          {"first_name": "test1", "last_name": "test2", "phone_number": "123"}),
+                          {"first_name": "test1", "last_name": "test2",
+                          "phone_number": "123", "secret_field": "MY_SECRET"}),
                       headers={"Content-Type": "application/json"})
     assert res.status_code == 200
     if ("uid" in res.json):
         uid = res.json["uid"]
     assert "uid" in res.json
+
+    # check if `secret_field` is filtered
+    assert "secret_field" not in res.json
 
     # post existing person
     res = client.post("/persons",
