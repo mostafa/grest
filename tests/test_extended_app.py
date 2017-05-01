@@ -150,7 +150,7 @@ def test_api_post_person(client):
 
 
 def test_api_get_specific_person(client):
-    """PetsView:get"""
+    """PersonsView:get"""
     global uid
     res = client.get("/persons/" + uid)
     assert res.status_code == 200
@@ -245,12 +245,87 @@ def test_api_get_persons_non_existing_pet(client):
     assert "errors" in res.json
 
 
-def test_api_person_no_longer_owns_pet(client):
+def test_api_put_person_pet_and_relation(client):
+    # disconnect pet from person and reconnects them
+    res = client.put("/persons/" + uid + "/pets/" + pet_id)
+    assert res.status_code == 200
+    assert res.json == {"result": "OK"}
+
+    # delete old person and insert new one
+    global uid
+    res = client.put("/persons/" + uid,
+                     data=json.dumps(
+                         {"first_name": "Alex", "last_name": "Douglas", "phone_number": "123456"}),
+                     headers={"Content-Type": "application/json"})
+    assert res.status_code == 200
+    if ("uid" in res.json):
+        uid = res.json["uid"]
+    assert "uid" in res.json
+
+    # validation error
+    global uid
+    res = client.put("/persons/" + uid,
+                     data=json.dumps(
+                         {"first_name": 123, "last_name": "Douglas", "phone_number": "123456"}),
+                     headers={"Content-Type": "application/json"})
+    assert res.status_code == 422
+    assert "errors" in res.json
+
+    # delete old pet and insert new one
+    global pet_id
+    res = client.put("/pets/" + pet_id,
+                     data=json.dumps({"name": "Puppy"}),
+                     headers={"Content-Type": "application/json"})
+    print res.json
+    assert res.status_code == 200
+    if ("pet_id" in res.json):
+        pet_id = res.json["pet_id"]
+    assert "pet_id" in res.json
+
+    # connect person and pet
+    res = client.put("/persons/" + uid + "/pets/" + pet_id)
+    assert res.status_code == 200
+    assert res.json == {"result": "OK"}
+
+    # non-existing relation
+    res = client.put("/persons/" + uid + "/cars/123123")
+    assert res.status_code == 404
+    assert "errors" in res.json
+
+
+def test_api_patch_person(client):
+    # Note: patch cannot update relations (use put instead)
+    # update person's phone_number
+    global uid
+    res = client.patch("/persons/" + uid,
+                       data=json.dumps(
+                           {"phone_number": "654321"}),
+                       headers={"Content-Type": "application/json"})
+    assert res.status_code == 200
+    assert res.json == {"result": "OK"}
+
+    # validation error
+    global uid
+    res = client.patch("/persons/" + uid,
+                       data=json.dumps(
+                           {"first_name": 123}),
+                       headers={"Content-Type": "application/json"})
+    assert res.status_code == 422
+    assert "errors" in res.json
+
+
+def test_api_delete_relation(client):
     """PersonsView:delete"""
     global uid, pet_id
     res = client.delete("/persons/" + uid + "/pets/" + pet_id)
     assert res.status_code == 200
     assert res.json == {"result": "OK"}
+
+    # non-existing relation
+    res = client.delete("/persons/" + uid + "/pets/" + pet_id)
+    print res.json
+    assert res.status_code == 409
+    assert "errors" in res.json
 
 
 def test_api_delete_person(client):
@@ -259,6 +334,11 @@ def test_api_delete_person(client):
     res = client.delete("/persons/" + uid)
     assert res.status_code == 200
     assert res.json == {"result": "OK"}
+
+    # delete non-existing person
+    res = client.delete("/persons/" + uid)
+    assert res.status_code == 404
+    assert "errors" in res.json
 
 
 def test_api_delete_pet(client):
