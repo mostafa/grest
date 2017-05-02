@@ -9,7 +9,7 @@ uid = ""
 
 def test_index(client):
     res = client.get(url_for("index"))
-    assert res.data == "Hello World"
+    assert res.data == b"Hello World"
 
 
 def test_api_index(client):

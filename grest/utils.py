@@ -14,7 +14,7 @@ from neomodel import (relationship_manager, Property, StringProperty,
                       UniqueIdProperty, JSONProperty)
 # import logging
 # import os
-import global_config
+from . import global_config
 
 
 class Node(object):

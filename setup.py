@@ -38,13 +38,15 @@ For more information, visit github page of `the project <https://github.com/most
           "requests"
       ],
       classifiers=[
-          "Development Status :: 4 - Beta",
+          # "Development Status :: 4 - Beta",
+          "Development Status :: 5 - Production/Stable",
           "Intended Audience :: Developers",
           "Framework :: Flask",
           "Topic :: Software Development :: Libraries",
           "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
           "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7"
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3"
       ],
       # keywords='',
       setup_requires=['pytest-runner'],
