@@ -492,7 +492,6 @@ class GRest(FlaskView):
                     **{primary_selection_field: str(markupsafe.escape(primary_id))})
 
                 if selected_item:
-                    # FIXME: validate all input (JSON) data
                     if json_data:
                         with db.transaction:
                             selected_item.__dict__.update(json_data)
