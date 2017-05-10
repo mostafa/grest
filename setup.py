@@ -35,7 +35,9 @@ For more information, visit github page of `the project <https://github.com/most
           "markupsafe",
           "inflect",
           "autologging",
-          "requests"
+          "requests",
+          "pyaml",
+          "dicttoxml"
       ],
       classifiers=[
           # "Development Status :: 4 - Beta",
