@@ -2,11 +2,12 @@ from datetime import datetime
 from functools import wraps
 import json
 from itertools import chain
-import copy
 
 from flask import request, g, jsonify, current_app as app
 import markupsafe
 import requests
+from pyaml import yaml
+import dicttoxml
 from webargs import fields
 from neomodel import (relationship_manager, Property, StringProperty,
                       DateTimeProperty, DateProperty, EmailProperty,
@@ -19,32 +20,34 @@ from . import global_config
 
 class Node(object):
     __validation_rules__ = {}
-    __filtered_fields__ = []
 
     def __init__(self):
         super(self.__class__, self)
         self.__validation_rules__ = self.validation_rules
 
-    def serialize(self):
-        properties = copy.deepcopy(self.__dict__)
-        blocked_properties = ["id", "password",
-                              "current_otp", "validation_rules"]
+    def to_dict(self):
+        name = 0
+        properties = [p[name] for p in self.__all_properties__]
+        blocked_properties = ["id",
+                              "password",
+                              "current_otp",
+                              "validation_rules"]
 
-        if self.__filtered_fields__:
+        if hasattr(self, "__filtered_fields__"):
             blocked_properties.extend(self.__filtered_fields__)
 
         removable_keys = set()
-        for prop in properties.keys():
+        for prop in properties:
             # remove null key/values
-            if properties[prop] is None:
+            if getattr(self, prop) is None:
                 removable_keys.add(prop)
 
             # remove display functions for choices
-            if prop.startswith("get_") and prop.endswith("_display"):
-                removable_keys.add(prop)
+            # if prop.startswith("get_") and prop.endswith("_display"):
+            #     removable_keys.add(prop)
 
             # remove relations for now!!!
-            if isinstance(properties[prop], relationship_manager.ZeroOrMore):
+            if isinstance(getattr(self, prop), relationship_manager.ZeroOrMore):
                 removable_keys.add(prop)
 
             # remove blocked properties, e.g. password, id, ...
@@ -52,9 +55,11 @@ class Node(object):
                 removable_keys.add(prop)
 
         for key in removable_keys:
-            properties.pop(key)
+            properties.remove(key)
 
-        return properties
+        result = {key: getattr(self, key) for key in properties}
+
+        return result
 
     @property
     def validation_rules(self):
@@ -210,3 +215,20 @@ def get_header(name):
         return request.headers.get(markupsafe.escape(name))
     else:
         return None
+
+
+def serialize(data):
+    try:
+        accept = get_header(global_config.ACCEPT)
+
+        if accept == "application/json":
+            return jsonify(data)
+        elif accept == "text/yaml":
+            return yaml.safe_dump(data)
+        elif accept == "text/xml":
+            return dicttoxml.dicttoxml(data)
+        else:
+            # return json if content-type is not set
+            return jsonify(data)
+    except Exception:
+        return jsonify(errors=["Serialization exception!"]), 500

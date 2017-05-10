@@ -26,6 +26,8 @@ class Person(StructuredNode, utils.Node):
         "phone_number": fields.Str(required=True)
     }
 
+    __filtered_fields__ = ["secret_field"]
+
     uid = UniqueIdProperty()
     first_name = StringProperty()
     last_name = StringProperty()
@@ -46,7 +48,6 @@ class PersonsView(GRest):
                            "secondary": {
                                "pets": "pet_id"
                            }}
-    __filtered_fields__ = ["secret_field"]
 
 
 class PetsView(GRest):
@@ -63,7 +64,7 @@ class PetsView(GRest):
             if (pet):
                 current_owner = pet.owner.get()
                 if (current_owner):
-                    return jsonify(owner=current_owner.serialize()), 200
+                    return jsonify(owner=current_owner.to_dict()), 200
                 else:
                     return jsonify(errors=["Selected pet has not been adopted yet!"]), 404
             else:
