@@ -1,5 +1,7 @@
 import json
+import xml.etree.ElementTree as ET
 import pytest
+from pyaml import yaml
 from examples.extended_app import create_app
 
 
@@ -100,6 +102,28 @@ def test_api_index_skip_limit_order_by(client):
     assert res.status_code == 404
     assert "errors" in res.json
 
+    # get all persons in YAML format
+    res = client.get("/persons",
+                     query_string={"order_by": "first_name"},
+                     headers={"Accept": "text/yaml"})
+    assert res.status_code == 200
+    data = yaml.load(res.data)
+    assert "people" in data
+    assert len(data["people"]) == 10
+    assert data["people"][0]["first_name"] == "1"
+    assert data["people"][0]["last_name"] == "2"
+
+    # get all persons in XML format
+    res = client.get("/persons",
+                     query_string={"order_by": "first_name"},
+                     headers={"Accept": "text/xml"})
+    assert res.status_code == 200
+    print res.data
+    data = ET.fromstring(res.data)
+    assert len(data.findall("people")) == 1
+    assert len([i for i in data.iter("item")]) == 10
+
+    # delete all persons by uid
     for uid in uid_list:
         res = client.delete("/persons/" + uid)
         assert res.status_code == 200
