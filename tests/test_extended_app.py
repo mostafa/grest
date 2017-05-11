@@ -118,7 +118,6 @@ def test_api_index_skip_limit_order_by(client):
                      query_string={"order_by": "first_name"},
                      headers={"Accept": "text/xml"})
     assert res.status_code == 200
-    print res.data
     data = ET.fromstring(res.data)
     assert len(data.findall("people")) == 1
     assert len([i for i in data.iter("item")]) == 10
