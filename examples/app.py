@@ -27,6 +27,7 @@ class PersonsView(GRest):
     """User's View (/users)"""
     __model__ = {"primary": Person}
     __selection_field__ = {"primary": "uid"}
+    route_prefix = "/v1"
 
 
 def create_app():

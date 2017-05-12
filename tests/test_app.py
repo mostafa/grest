@@ -14,14 +14,14 @@ def test_index(client):
 
 def test_api_index(client):
     """PersonsView:index"""
-    res = client.get("/persons")
+    res = client.get("/v1/persons")
     assert res.status_code == 404
     assert res.json == {"errors": ["No person exists."]}
 
 
 def test_api_get(client):
     """PersonsView:get"""
-    res = client.get("/persons/6054ae614f674627b6eea6542f4d8e29")
+    res = client.get("/v1/persons/6054ae614f674627b6eea6542f4d8e29")
     assert res.status_code == 404
     assert res.json == {"errors": [
         "Selected person does not exist or the provided information is invalid."]}
@@ -30,7 +30,7 @@ def test_api_get(client):
 def test_api_post(client):
     """PersonsView:post"""
     global uid
-    res = client.post("/persons",
+    res = client.post("/v1/persons",
                       data=json.dumps({"first_name": "test1", "last_name": "test2"}),
                       headers={'content-type': 'application/json'})
     assert res.status_code == 200
@@ -42,7 +42,7 @@ def test_api_post(client):
 def test_api_put(client):
     """PersonsView:put"""
     global uid
-    res = client.put("/persons/" + uid,
+    res = client.put("/v1/persons/" + uid,
                      data=json.dumps({"first_name": "test3", "last_name": "test4"}),
                      headers={'content-type': 'application/json'})
     assert res.status_code == 200
@@ -54,7 +54,7 @@ def test_api_put(client):
 def test_api_patch(client):
     """PersonsView:patch"""
     global uid
-    res = client.patch("/persons/" + uid,
+    res = client.patch("/v1/persons/" + uid,
                        data=json.dumps({"first_name": "test5"}),
                        headers={'content-type': 'application/json'})
     assert res.status_code == 200
@@ -64,7 +64,7 @@ def test_api_patch(client):
 def test_api_delete(client):
     """PersonsView:delete"""
     global uid
-    res = client.delete("/persons/" + uid)
+    res = client.delete("/v1/persons/" + uid)
     assert res.status_code == 200
     assert res.json == {"result": "OK"}
 
