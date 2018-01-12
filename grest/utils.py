@@ -18,7 +18,7 @@ from neomodel import (relationship_manager, Property, StringProperty,
 from . import global_config
 
 
-class Node(object):
+class NodeAndRelationHelper(object):
     __validation_rules__ = {}
 
     def __init__(self):
@@ -27,7 +27,7 @@ class Node(object):
 
     def to_dict(self):
         name = 0
-        properties = [p[name] for p in self.__all_properties__]
+        properties = [p[name] for p in self.defined_properties().items()]
         blocked_properties = ["id",
                               "password",
                               "current_otp",
@@ -96,7 +96,7 @@ class Node(object):
         name = 0
         value = 1
 
-        for field in self.__all_properties__:
+        for field in self.defined_properties().items():
             if type(field[value]) in model_types:
                 if isinstance(field[value], ArrayProperty):
                     if field[value].unique_index:
@@ -115,6 +115,14 @@ class Node(object):
                         type(field[value])](required=field[value].required)
 
         return self.__validation_rules__
+
+
+class Node(NodeAndRelationHelper):
+    pass
+
+
+class Relation(NodeAndRelationHelper):
+    pass
 
 
 def authenticate(func):

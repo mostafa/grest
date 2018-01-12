@@ -37,7 +37,7 @@ class GRest(FlaskView):
 
     The selection field is the unique field that signifies a specific node
     or its related node(s). It works like the __primary_key__ and __foreign_key__
-    property in other ORMs. The above example is completed with the following mapping: 
+    property in other ORMs. The above example is completed with the following mapping:
     __selection_field__ = {"primary": "user_id",
                            "secondary": {
                                 "posts": "post_id",
@@ -192,6 +192,7 @@ class GRest(FlaskView):
                             if hasattr(primary_selected_item, secondary_model_name):
                                 related_items = getattr(
                                     primary_selected_item, secondary_model_name).all()
+                                # FIXME: add relation data to the output
                                 if related_items:
                                     return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
                                                       [item.to_dict() for item in related_items]})
@@ -309,9 +310,20 @@ class GRest(FlaskView):
                         if related_item:
                             return serialize(dict(errors=["Relation exists!"])), 409
                         else:
+                            # parse input data as relation's (validate or not!)
+                            if relation.definition["model"].__validation_rules__:
+                                try:
+                                    json_data = parser.parse(
+                                        relation.definition["model"].__validation_rules__, request)
+                                except:
+                                    self.__log.debug("Validation failed!")
+                                    return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                            else:
+                                json_data = request.get_json(silent=True)
+
                             with db.transaction:
                                 related_item = relation.connect(
-                                    secondary_selected_item)
+                                    secondary_selected_item, json_data)
 
                             if related_item:
                                 return serialize(dict(result="OK"))

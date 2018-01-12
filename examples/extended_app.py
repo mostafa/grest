@@ -2,13 +2,19 @@ from flask import Flask, jsonify
 from flask_classful import route
 import markupsafe
 import neomodel
-from neomodel import (StructuredNode, StringProperty,
-                      UniqueIdProperty, RelationshipFrom, RelationshipTo)
+from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+                      UniqueIdProperty, RelationshipFrom, RelationshipTo,
+                      StructuredRel)
 from webargs import fields
 from grest import GRest, utils, global_config
 import logging
 import logging.handlers
 import os
+
+
+class PetInfo(StructuredRel, utils.Relation):
+    """Pet Information Model (for relationship)"""
+    adopted_since = IntegerProperty()
 
 
 class Pet(StructuredNode, utils.Node):
@@ -35,7 +41,7 @@ class Person(StructuredNode, utils.Node):
 
     secret_field = StringProperty(default="secret", required=False)
 
-    pets = RelationshipTo(Pet, "HAS_PET")
+    pets = RelationshipTo(Pet, "HAS_PET", model=PetInfo)
 
 
 class PersonsView(GRest):
