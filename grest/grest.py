@@ -171,9 +171,14 @@ class GRest(FlaskView):
                                 related_item = getattr(
                                     primary_selected_item, secondary_model_name).get(
                                     **{secondary_selection_field: str(markupsafe.escape(secondary_id))})
+
+                                relationship = getattr(primary_selected_item, secondary_model_name).relationship(related_item)
+
                                 if related_item:
-                                    return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
-                                                      related_item.to_dict()})
+                                    relation = related_item.to_dict()
+                                    relation.update({"relationship": relationship.to_dict()})
+                                    return serialize({secondary_model.__name__.lower():
+                                                      relation})
                                 else:
                                     return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
                                     ) + " does not exist or the provided information is invalid."])), 404
@@ -192,10 +197,16 @@ class GRest(FlaskView):
                             if hasattr(primary_selected_item, secondary_model_name):
                                 related_items = getattr(
                                     primary_selected_item, secondary_model_name).all()
-                                # FIXME: add relation data to the output
+
                                 if related_items:
+                                    relationships = []
+                                    for item in related_items:
+                                        item_info = item.to_dict()
+                                        item_info["relationship"] = getattr(primary_selected_item, secondary_model_name).relationship(item).to_dict()
+                                        relationships.append(item_info)
+
                                     return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
-                                                      [item.to_dict() for item in related_items]})
+                                                      relationships})
                                 else:
                                     return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
                                     ) + " does not exist or the provided information is invalid."])), 404
