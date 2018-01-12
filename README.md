@@ -40,7 +40,7 @@ You can find an example app in [examples](https://github.com/mostafa/grest/tree/
 In order to build an API, you should make a simple Flask app (or you may already have one).
 
 A simple Flask app:
-~~~~
+~~~~python
 from flask import Flask
 app = Flask(__name__)
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
 To use gREST, you should define your models with [Neomodel](http://neomodel.readthedocs.io/en/latest/getting_started.html#definition) syntax. Neomodel is easier to use than other ORMs and drivers. Take a look at this example:
 
-~~~~
+~~~~python
 from neomodel import (StructuredNode, UniqueIdProperty, StringProperty)
 from grest import utils
 
@@ -66,7 +66,7 @@ class Person(StructuredNode, utils.Node):
 As you can see, we have imported `utils` from `grest`, so that we can use the `Node` mixin (which is used in JSON serialization of model data). Also note that the `Person` class (model) is inheriting from two parents: `StructuredNode` and `Node`.
 
 Then we should inherit from `grest` to make a new view of our model (so that it accepts RESTful verbs):
-~~~~
+~~~~python
 from grest import GRest
 
 class PersonsView(GRest):
@@ -76,7 +76,7 @@ class PersonsView(GRest):
 The most important part of grest is `__model__` and `__selection_field__` properties. They contain the logic to access your models and relations. As you see, our `primary` model is `Person` and its primary key (so to say) is `uid`, so the selection field of the primary model is `uid`.
 
 You should register this view:
-~~~~
+~~~~python
 PersonsView.register(app, route_base="/persons", trailing_slash=False)
 ~~~~
 
@@ -85,7 +85,7 @@ To include input validation in each model, you should include `__validation_rule
 
 `__validation_rules__` property is there for customization of validation rules, with the new release v0.2.1, validation rules are inferred and constructred from your models' properties, so it is unnecessary to define it in most cases.
 
-~~~~
+~~~~python
 from neomodel import (StructuredNode, UniqueIdProperty, StringProperty)
 from grest import utils
 from webargs import fields
@@ -105,12 +105,12 @@ class Person(StructuredNode, utils.Node):
 You can override default behavior of HTTP verbs (index, get, post, put, patch and delete) and also make custom endpoints under this `PersonsView` class.
 
 Last but not least, you should set up connection to your database, which is achieved by setting the `DATABASE_URL` propery of `neomodel.config`:
-~~~~
+~~~~python
 neomodel.config.DATABASE_URL = "bolt://neo4j:neo4j@localhost:7687"
 ~~~~
 
 One last part is to connect the logger of grest to Flask, or use a custom logger:
-~~~~
+~~~~python
 app.ext_logger = app.logger
 ~~~~
 
@@ -120,7 +120,7 @@ app.ext_logger = app.logger
 You can run this app either in development or production:
 
 As it is the same flask application, you can run it in development like this:
-~~~~
+~~~~bash
 $ python app.py
 ~~~~
 
