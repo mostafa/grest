@@ -355,7 +355,7 @@ class GRest(FlaskView):
     # @db.transaction
     def put(self, primary_id, secondary_model_name=None, secondary_id=None):
         """
-        Deletes and inserts a new node or a new relation
+        Deletes and inserts a new node or a new relation (with data)
         :param primary_id: unique id of the primary (source) node (model)
         :type: str
         :param secondary_model_name: name of the secondary (destination) node (model)
@@ -444,14 +444,25 @@ class GRest(FlaskView):
 
                             all_relations = relation.all()
 
+                            # parse input data as relation's (validate or not!)
+                            if relation.definition["model"].__validation_rules__:
+                                try:
+                                    json_data = parser.parse(
+                                        relation.definition["model"].__validation_rules__, request)
+                                except:
+                                    self.__log.debug("Validation failed!")
+                                    return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                            else:
+                                json_data = request.get_json(silent=True)
+
                             with db.transaction:
                                 # remove all relationships
                                 for each_relation in all_relations:
                                     relation.disconnect(each_relation)
 
-                                # add a new relationship
+                                # add a new relationship with data
                                 related_item = relation.connect(
-                                    secondary_selected_item)
+                                    secondary_selected_item, json_data)
 
                             if related_item:
                                 return serialize(dict(result="OK"))
