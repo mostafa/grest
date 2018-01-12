@@ -208,7 +208,9 @@ def test_api_post_pet(client):
 def test_api_post_person_adopts_pet(client):
     """PersonsView:post"""
     global pet_id, uid
-    res = client.post("/persons/" + uid + "/pets/" + pet_id)
+    res = client.post("/persons/" + uid + "/pets/" + pet_id,
+                      data=json.dumps({"adopted_since": 2018}),
+                      headers={"Content-Type": "application/json"})
     assert res.status_code == 200
     assert res.json == {"result": "OK"}
 
@@ -261,7 +263,7 @@ def test_api_get_persons_specific_pet(client):
     global pet_id, uid
     res = client.get("/persons/" + uid + "/pets/" + pet_id)
     assert res.status_code == 200
-    assert "pets" in res.json and "pet_id" in res.json["pets"]
+    assert "pet" in res.json and "pet_id" in res.json["pet"] and "relationship" in res.json["pet"]
 
 
 def test_api_get_persons_non_existing_pet(client):
