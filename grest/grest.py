@@ -87,7 +87,7 @@ class GRest(FlaskView):
                 count = start + QUERY_LIMIT
 
             all_properties = [prop[0]
-                              for prop in primary_model.__all_properties__]
+                              for prop in primary_model.defined_properties().items()]
 
             order_by = str(markupsafe.escape(
                 query_data.get("order_by"))) or "?"
