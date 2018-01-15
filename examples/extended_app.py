@@ -25,7 +25,7 @@ class Pet(StructuredNode, utils.Node):
 
 
 class Person(StructuredNode, utils.Node):
-    """User model"""
+    """Person model"""
     __validation_rules__ = {
         "first_name": fields.Str(),
         "last_name": fields.Str(),
@@ -45,7 +45,7 @@ class Person(StructuredNode, utils.Node):
 
 
 class PersonsView(GRest):
-    """User's View (/users)"""
+    """Person's View (/persons)"""
     __model__ = {"primary": Person,
                  "secondary": {
                      "pets": Pet

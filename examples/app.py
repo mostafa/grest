@@ -11,7 +11,7 @@ from grest import GRest, utils, global_config
 
 # noinspection PyAbstractClass
 class Person(StructuredNode, utils.Node):
-    """User model"""
+    """Person model"""
     __validation_rules__ = {
         "uid": fields.Str(),
         "first_name": fields.Str(),
@@ -24,10 +24,10 @@ class Person(StructuredNode, utils.Node):
 
 
 class PersonsView(GRest):
-    """User's View (/users)"""
+    """Person's View (/persons)"""
     __model__ = {"primary": Person}
     __selection_field__ = {"primary": "uid"}
-    route_prefix = "/v1"
+    route_prefix = "/v1"  # API version
 
 
 def create_app():
