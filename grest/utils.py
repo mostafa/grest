@@ -97,22 +97,23 @@ class NodeAndRelationHelper(object):
         value = 1
 
         for field in self.defined_properties().items():
-            if type(field[value]) in model_types:
-                if isinstance(field[value], ArrayProperty):
-                    if field[value].unique_index:
-                        # what it contains: Array of *String*
-                        container = model_mapping[
-                            type(field[value].unique_index)]
-                    else:
-                        # defaults to Raw for untyped ArrayProperty
-                        container = fields.Raw
+            if field[name] not in self.__validation_rules__:
+                if type(field[value]) in model_types:
+                    if isinstance(field[value], ArrayProperty):
+                        if field[value].unique_index:
+                            # what it contains: Array of *String*
+                            container = model_mapping[
+                                type(field[value].unique_index)]
+                        else:
+                            # defaults to Raw for untyped ArrayProperty
+                            container = fields.Raw
 
-                    self.__validation_rules__[field[name]] = model_mapping[
-                        type(field[value])](container,
-                                            required=field[value].required)
-                else:
-                    self.__validation_rules__[field[name]] = model_mapping[
-                        type(field[value])](required=field[value].required)
+                        self.__validation_rules__[field[name]] = model_mapping[
+                            type(field[value])](container,
+                                                required=field[value].required)
+                    else:
+                        self.__validation_rules__[field[name]] = model_mapping[
+                            type(field[value])](required=field[value].required)
 
         return self.__validation_rules__
 
