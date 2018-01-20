@@ -47,7 +47,7 @@ class NodeAndRelationHelper(object):
             #     removable_keys.add(prop)
 
             # remove relations for now!!!
-            if isinstance(getattr(self, prop), relationship_manager.ZeroOrMore):
+            if isinstance(getattr(self, prop), relationship_manager.RelationshipManager):
                 removable_keys.add(prop)
 
             # remove blocked properties, e.g. password, id, ...
