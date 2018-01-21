@@ -128,7 +128,7 @@ class Relation(NodeAndRelationHelper):
 
 def authenticate(func):
     @wraps(func)
-    def authenticate_requests(*args, **kwargs):
+    def authenticate_requests(self, *args, **kwargs):
         """
         The authentication_function can be either empty, which
         results in all requests being taken as granted and authenticated.
@@ -147,15 +147,15 @@ def authenticate(func):
                 request.endpoint.replace(":", "/").replace(".", "/").lower())
         # authenticate users here!
         if hasattr(app, "authentication_function"):
-            authenticated = app.authentication_function(
-                global_config.X_AUTH_TOKEN)
+            authenticated = app.authentication_function(self,
+                                                        global_config.X_AUTH_TOKEN)
         else:
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
 
         if authenticated is False:
             return jsonify(errors=["Authentication failed!"]), 403
         elif g.user is not None:
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
         else:
             return authenticated
     return authenticate_requests
@@ -163,7 +163,7 @@ def authenticate(func):
 
 def authorize(func):
     @wraps(func)
-    def authorize_requests(*args, **kwargs):
+    def authorize_requests(self, *args, **kwargs):
         """
         The authorization_function can be either empty, which
         results in all requests being taken as granted and authorized.
@@ -183,15 +183,15 @@ def authorize(func):
 
         # authorize users here!
         if hasattr(app, "authorization_function"):
-            authorized = app.authorization_function(
-                global_config.X_AUTH_TOKEN)
+            authorized = app.authorization_function(self,
+                                                    global_config.X_AUTH_TOKEN)
         else:
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
 
         if authorized is False:
             return jsonify(errors=["Access denied!"]), 401
         elif g.is_authorized is True:
-            return func(*args, **kwargs)
+            return func(self, *args, **kwargs)
         else:
             return authorized
 
