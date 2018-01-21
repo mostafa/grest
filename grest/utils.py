@@ -141,6 +141,7 @@ def authenticate(func):
         if hasattr(app, "authentication_function"):
             try:
                 app.authentication_function(self)
+                return func(self, *args, **kwargs)
             except Exception as e:
                 return jsonify(errors=[e.message]), e.status_code
         else:
@@ -163,6 +164,7 @@ def authorize(func):
         if hasattr(app, "authorization_function"):
             try:
                 app.authorization_function(self)
+                return func(self, *args, **kwargs)
             except Exception as e:
                 return jsonify(errors=[e.message]), e.status_code
         else:
