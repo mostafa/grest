@@ -495,6 +495,7 @@ class GRest(FlaskView):
             self.__log.exception(e)
             return serialize(dict(errors=["An error occurred while processing your request."])), 500
 
+    @route("/<primary_id>", methods=["PATCH"])
     @authenticate
     @authorize
     def patch(self, primary_id):

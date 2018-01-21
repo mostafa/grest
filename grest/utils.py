@@ -132,32 +132,19 @@ def authenticate(func):
         """
         The authentication_function can be either empty, which
         results in all requests being taken as granted and authenticated.
-        Otherwise the authentication_function must return one of these values:
-        1- False -> To indicate the user is not authenticated
-        2- g.user global user instance ->
-            + not None: access is granted.
-            + None: access is denied.
-        3- jsonified error message:
-            + It is directly returned to user, e.g.:
-                return jsonify(error="Authentication failed!"), 403
+        Otherwise the authentication_function must not return when
+        the authentication is successful otherwise it should raise an exception
+        explaining the error (containing message and status_code).
         """
-        authenticated = False
-        if (global_config.DEBUG):
-            app.ext_logger.info(
-                request.endpoint.replace(":", "/").replace(".", "/").lower())
+
         # authenticate users here!
         if hasattr(app, "authentication_function"):
-            authenticated = app.authentication_function(self,
-                                                        global_config.X_AUTH_TOKEN)
+            try:
+                app.authentication_function(self)
+            except Exception as e:
+                return jsonify(errors=[e.message]), e.status_code
         else:
             return func(self, *args, **kwargs)
-
-        if authenticated is False:
-            return jsonify(errors=["Authentication failed!"]), 403
-        elif g.user is not None:
-            return func(self, *args, **kwargs)
-        else:
-            return authenticated
     return authenticate_requests
 
 
@@ -167,34 +154,19 @@ def authorize(func):
         """
         The authorization_function can be either empty, which
         results in all requests being taken as granted and authorized.
-        Otherwise the authorization_function must return one of these values:
-        1- False -> To indicate the user is not authorized
-        2- g.is_authorized global boolean variable ->
-            + True: access is granted.
-            + False: access is denied.
-        3- jsonified error message:
-            + It is directly returned to user, e.g.:
-                return jsonify(error="Access denied!"), 401
+        Otherwise the authorization_function must not return when
+        the authorization is successful otherwise it should raise an exception
+        explaining the error (containing message and status_code).
         """
-        authorized = False
-        if (global_config.DEBUG):
-            app.ext_logger.info(
-                request.endpoint.replace(":", "/").replace(".", "/").lower())
 
         # authorize users here!
         if hasattr(app, "authorization_function"):
-            authorized = app.authorization_function(self,
-                                                    global_config.X_AUTH_TOKEN)
+            try:
+                app.authorization_function(self)
+            except Exception as e:
+                return jsonify(errors=[e.message]), e.status_code
         else:
             return func(self, *args, **kwargs)
-
-        if authorized is False:
-            return jsonify(errors=["Access denied!"]), 401
-        elif g.is_authorized is True:
-            return func(self, *args, **kwargs)
-        else:
-            return authorized
-
     return authorize_requests
 
 
