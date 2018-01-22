@@ -126,6 +126,20 @@ class Relation(NodeAndRelationHelper):
     pass
 
 
+class HTTPException(Exception):
+
+    """
+        Base class for all http exceptions raised in auth functions
+    """
+
+    def __init__(self, message, status_code):
+        self.message = message
+        self.status_code = status_code
+
+    def __str__(self):
+        return self.message
+
+
 def authenticate(func):
     @wraps(func)
     def authenticate_requests(self, *args, **kwargs):
@@ -142,8 +156,10 @@ def authenticate(func):
             try:
                 app.authentication_function(self)
                 return func(self, *args, **kwargs)
-            except Exception as e:
+            except HTTPException as e:
                 return jsonify(errors=[e.message]), e.status_code
+            except Exception as e:
+                return jsonify(errors=[e.message]), 500
         else:
             return func(self, *args, **kwargs)
     return authenticate_requests
@@ -165,8 +181,10 @@ def authorize(func):
             try:
                 app.authorization_function(self)
                 return func(self, *args, **kwargs)
-            except Exception as e:
+            except HTTPException as e:
                 return jsonify(errors=[e.message]), e.status_code
+            except Exception as e:
+                return jsonify(errors=[e.message]), 500
         else:
             return func(self, *args, **kwargs)
     return authorize_requests
