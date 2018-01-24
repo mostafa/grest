@@ -129,7 +129,7 @@ class Relation(NodeAndRelationHelper):
 class HTTPException(Exception):
 
     """
-        Base class for all http exceptions raised in auth functions
+        Base class for all http exceptions raised in all functions
     """
 
     def __init__(self, message, status_code):
@@ -138,6 +138,23 @@ class HTTPException(Exception):
 
     def __str__(self):
         return self.message
+
+
+def auth_exempt(func):
+    @wraps(func)
+    def exempt_requests(self, *args, **kwargs):
+        """
+        If a custom endpoint is going to be exempted from authentication and/or
+        authorization, it should be decorated with auth_exempt decorator.
+        """
+
+        try:
+            return func(self, *args, **kwargs)
+        except HTTPException as e:
+            return serialize({"errors": [e.message]}), e.status_code
+        except Exception as e:
+            return serialize({"errors": [e.message]}), 500
+    return exempt_requests
 
 
 def authenticate(func):
@@ -152,16 +169,16 @@ def authenticate(func):
         """
 
         # authenticate users here!
-        if hasattr(app, "authentication_function"):
-            try:
+        try:
+            if hasattr(app, "authentication_function"):
                 app.authentication_function(self)
                 return func(self, *args, **kwargs)
-            except HTTPException as e:
-                return jsonify(errors=[e.message]), e.status_code
-            except Exception as e:
-                return jsonify(errors=[e.message]), 500
-        else:
-            return func(self, *args, **kwargs)
+            else:
+                return func(self, *args, **kwargs)
+        except HTTPException as e:
+            return serialize({"errors": [e.message]}), e.status_code
+        except Exception as e:
+            return serialize({"errors": [e.message]}), 500
     return authenticate_requests
 
 
@@ -177,16 +194,16 @@ def authorize(func):
         """
 
         # authorize users here!
-        if hasattr(app, "authorization_function"):
-            try:
-                app.authorization_function(self)
+        try:
+            if hasattr(app, "authorization_function"):
+                app.authentication_function(self)
                 return func(self, *args, **kwargs)
-            except HTTPException as e:
-                return jsonify(errors=[e.message]), e.status_code
-            except Exception as e:
-                return jsonify(errors=[e.message]), 500
-        else:
-            return func(self, *args, **kwargs)
+            else:
+                return func(self, *args, **kwargs)
+        except HTTPException as e:
+            return serialize({"errors": [e.message]}), e.status_code
+        except Exception as e:
+            return serialize({"errors": [e.message]}), 500
     return authorize_requests
 
 

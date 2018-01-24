@@ -9,7 +9,7 @@ from webargs import fields
 from autologging import logged
 
 from .global_config import QUERY_LIMIT
-from .utils import authenticate, authorize, serialize
+from .utils import authenticate, authorize, serialize, HTTPException
 
 
 @logged
@@ -74,7 +74,8 @@ class GRest(FlaskView):
                 query_data = parser.parse(__validation_rules__, request)
             except:
                 self.__log.debug("Validation failed!")
-                return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                raise HTTPException(
+                    "One or more of the required fields is missing or incorrect.", 422)
 
             start = query_data.get("skip")
             if start:
@@ -99,15 +100,18 @@ class GRest(FlaskView):
                     order_by_prop = order_by
 
                 if order_by_prop not in all_properties and order_by_prop != "?":
-                    return serialize(dict(errors=["Selected property for ordering is invalid."])), 404
+                    raise HTTPException(
+                        "Selected property for ordering is invalid.", 404)
 
             total_items = len(primary_model.nodes)
 
             if total_items <= 0:
-                return serialize(dict(errors=["No " + primary_model.__name__.lower() + " exists."])), 404
+                raise HTTPException(
+                    "No " + primary_model.__name__.lower() + " exists.", 404)
 
             if start > total_items:
-                return serialize(dict(errors=["One or more of the required fields is incorrect."])), 422
+                raise HTTPException(
+                    "One or more of the required fields is incorrect.", 422)
 
             page = primary_model.nodes.order_by(order_by)[start:count]
 
@@ -115,10 +119,11 @@ class GRest(FlaskView):
                 return serialize({inflect.engine().plural(primary_model.__name__.lower()):
                                   [item.to_dict() for item in page]})
             else:
-                return serialize(dict(errors=["No " + primary_model.__name__.lower() + " exists."])), 404
-        except Exception as e:
+                raise HTTPException(
+                    "No " + primary_model.__name__.lower() + " exists.", 404)
+        except DoesNotExist as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["An error occurred while processing your request."])), 500
+            raise HTTPException("The requested item or relation does not exist.", 404)
 
     @route("/<primary_id>", methods=["GET"])
     @route("/<primary_id>/<secondary_model_name>", methods=["GET"])
@@ -156,7 +161,7 @@ class GRest(FlaskView):
                     secondary_model_name)
 
             if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-                return serialize(dict(errors=["Selected relation does not exist."])), 404
+                raise HTTPException("Selected relation does not exist.", 404)
 
             if primary_id:
                 if secondary_model:
@@ -172,22 +177,24 @@ class GRest(FlaskView):
                                     primary_selected_item, secondary_model_name).get(
                                     **{secondary_selection_field: str(markupsafe.escape(secondary_id))})
 
-                                relationship = getattr(primary_selected_item, secondary_model_name).relationship(related_item)
+                                relationship = getattr(
+                                    primary_selected_item, secondary_model_name).relationship(related_item)
 
                                 if related_item:
                                     relation = related_item.to_dict()
-                                    relation.update({"relationship": relationship.to_dict()})
+                                    relation.update(
+                                        {"relationship": relationship.to_dict()})
                                     return serialize({secondary_model.__name__.lower():
                                                       relation})
                                 else:
-                                    return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                                    ) + " does not exist or the provided information is invalid."])), 404
+                                    raise HTTPException("Selected " + secondary_model.__name__.lower(
+                                    ) + " does not exist or the provided information is invalid.", 404)
                             else:
-                                return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                                ) + " does not exist or the provided information is invalid."])), 404
+                                raise HTTPException("Selected " + secondary_model.__name__.lower(
+                                ) + " does not exist or the provided information is invalid.", 404)
                         else:
-                            return serialize(dict(errors=["Selected " + primary_model.__name__.lower(
-                            ) + " does not exist or the provided information is invalid."])), 404
+                            raise HTTPException("Selected " + primary_model.__name__.lower(
+                            ) + " does not exist or the provided information is invalid.", 404)
                     else:
                         # user selected a nested model with primary key (from the primary and the secondary models)
                         # /users/user_1/roles -> all roles for this user
@@ -202,19 +209,21 @@ class GRest(FlaskView):
                                     relationships = []
                                     for item in related_items:
                                         item_info = item.to_dict()
-                                        item_info["relationship"] = getattr(primary_selected_item, secondary_model_name).relationship(item).to_dict()
+                                        item_info["relationship"] = getattr(
+                                            primary_selected_item, secondary_model_name).relationship(item).to_dict()
                                         relationships.append(item_info)
 
                                     return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
                                                       relationships})
                                 else:
-                                    return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                                    ) + " does not exist or the provided information is invalid."])), 404
+                                    raise HTTPException("Selected " + secondary_model.__name__.lower(
+                                    ) + " does not exist or the provided information is invalid.", 404)
                             else:
-                                return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                                ) + " does not exist or the provided information is invalid."])), 404
+                                raise HTTPException("Selected " + secondary_model.__name__.lower(
+                                ) + " does not exist or the provided information is invalid.", 404)
                         else:
-                            return serialize(dict(errors=["Selected " + primary_model.__name__.lower() + " does not exist or the provided information is invalid."])), 404
+                            raise HTTPException("Selected " + primary_model.__name__.lower(
+                            ) + " does not exist or the provided information is invalid.", 404)
                 else:
                     # user selected a single item (from the primary model)
                     selected_item = primary_model.nodes.get_or_none(
@@ -223,15 +232,13 @@ class GRest(FlaskView):
                     if selected_item:
                         return serialize({primary_model.__name__.lower(): selected_item.to_dict()})
                     else:
-                        return serialize(dict(errors=["Selected " + primary_model.__name__.lower() + " does not exist or the provided information is invalid."])), 404
+                        raise HTTPException("Selected " + primary_model.__name__.lower(
+                        ) + " does not exist or the provided information is invalid.", 404)
             else:
-                return serialize(dict(errors=[primary_model.__name__ + " id is not provided or is invalid."])), 404
+                raise HTTPException(primary_model.__name__ + " id is not provided or is invalid.", 404)
         except DoesNotExist as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["The requested item or relation does not exist."])), 404
-        except Exception as e:
-            self.__log.exception(e)
-            return serialize(dict(errors=["An error occurred while processing your request."])), 500
+            raise HTTPException("The requested item or relation does not exist.", 404)
 
     @route("", methods=["POST"])
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["POST"])
@@ -264,7 +271,7 @@ class GRest(FlaskView):
                     secondary_model_name)
 
             if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-                return serialize(dict(errors=["Selected relation does not exist."])), 404
+                raise HTTPException("Selected relation does not exist.", 404)
 
             if not (primary_id and secondary_model and secondary_id):
                 # user wants to add a new item
@@ -276,14 +283,14 @@ class GRest(FlaskView):
                                 primary_model.__validation_rules__, request)
                         except:
                             self.__log.debug("Validation failed!")
-                            return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                            raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
                     else:
                         json_data = request.get_json(silent=True)
 
                     if not json_data:
                         # if a non-existent property is present or misspelled,
                         # the json_data property is empty!
-                        return serialize(dict(errors=["A property is invalid, missing or misspelled!"])), 409
+                        raise HTTPException("A property is invalid, missing or misspelled!", 409)
 
                     item = primary_model.nodes.get_or_none(**json_data)
 
@@ -297,9 +304,9 @@ class GRest(FlaskView):
                         return serialize({primary_selection_field:
                                           getattr(item, primary_selection_field)})
                     else:
-                        return serialize(dict(errors=[primary_model.__name__ + " exists!"])), 409
+                        raise HTTPException(primary_model.__name__ + " exists!", 409)
                 except UniqueProperty:
-                    return serialize(dict(errors=["Provided properties are not unique!"])), 409
+                    raise HTTPException("Provided properties are not unique!", 409)
 
             if primary_id and secondary_model and secondary_id:
                 # user either wants to update a relation or
@@ -319,7 +326,7 @@ class GRest(FlaskView):
                         related_item = secondary_selected_item in relation.all()
 
                         if related_item:
-                            return serialize(dict(errors=["Relation exists!"])), 409
+                            raise HTTPException("Relation exists!", 409)
                         else:
                             # parse input data as relation's (validate or not!)
                             if relation.definition["model"].__validation_rules__:
@@ -328,7 +335,7 @@ class GRest(FlaskView):
                                         relation.definition["model"].__validation_rules__, request)
                                 except:
                                     self.__log.debug("Validation failed!")
-                                    return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                                    raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
                             else:
                                 json_data = request.get_json(silent=True)
 
@@ -339,25 +346,22 @@ class GRest(FlaskView):
                             if related_item:
                                 return serialize(dict(result="OK"))
                             else:
-                                return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                                ) + " does not exist or the provided information is invalid."])), 404
+                                raise HTTPException("Selected " + secondary_model.__name__.lower(
+                                ) + " does not exist or the provided information is invalid.", 404)
                     else:
-                        return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                        ) + " does not exist or the provided information is invalid."])), 404
+                        raise HTTPException("Selected " + secondary_model.__name__.lower(
+                        ) + " does not exist or the provided information is invalid.", 404)
                 else:
-                    return serialize(dict(errors=["Selected " + primary_model.__name__.lower(
-                    ) + " does not exist or the provided information is invalid."])), 404
+                    raise HTTPException("Selected " + primary_model.__name__.lower(
+                    ) + " does not exist or the provided information is invalid.", 404)
 
-            return serialize(dict(errors=["Invalid information provided."])), 404
+            raise HTTPException("Invalid information provided.", 404)
         except DoesNotExist as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["The requested item or relation does not exist."])), 404
+            raise HTTPException("The requested item or relation does not exist.", 404)
         except RequiredProperty as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["A required property is missing."])), 500
-        except Exception as e:
-            self.__log.exception(e)
-            return serialize(dict(errors=["An error occurred while processing your request."])), 500
+            raise HTTPException("A required property is missing.", 500)
 
     @route("/<primary_id>", methods=["PUT"])
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["PUT"])
@@ -391,7 +395,7 @@ class GRest(FlaskView):
                     secondary_model_name)
 
             if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-                return serialize(dict(errors=["Selected relation does not exist."])), 404
+                raise HTTPException("Selected relation does not exist.", 404)
 
             if primary_id and secondary_model_name is None and secondary_id is None:
                 # a single item is going to be updated(/replaced) with the
@@ -408,14 +412,14 @@ class GRest(FlaskView):
                                 primary_model.__validation_rules__, request)
                         except:
                             self.__log.debug("Validation failed!")
-                            return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                            raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
                     else:
                         json_data = request.get_json(silent=True)
 
                     if not json_data:
                         # if a non-existent property is present or misspelled,
                         # the json_data property is empty!
-                        return serialize(dict(errors=["A property is invalid, missing or misspelled!"])), 409
+                        raise HTTPException("A property is invalid, missing or misspelled!", 409)
 
                     if json_data:
                         with db.transaction:
@@ -432,11 +436,11 @@ class GRest(FlaskView):
                                 return serialize({primary_selection_field:
                                                   getattr(created_item, primary_selection_field)})
                             else:
-                                return serialize(dict(errors=["There was an error creating your desired item."])), 500
+                                raise HTTPException("There was an error creating your desired item.", 500)
                     else:
-                        return serialize(dict(errors=["Invalid information provided."])), 404
+                        raise HTTPException("Invalid information provided.", 404)
                 else:
-                    return serialize(dict(errors=[primary_model.__name__ + " does not exist."])), 404
+                    raise HTTPException(primary_model.__name__ + " does not exist.", 404)
             else:
                 if primary_id and secondary_model_name and secondary_id:
                     # user either wants to update a relation or
@@ -462,7 +466,7 @@ class GRest(FlaskView):
                                         relation.definition["model"].__validation_rules__, request)
                                 except:
                                     self.__log.debug("Validation failed!")
-                                    return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                                    raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
                             else:
                                 json_data = request.get_json(silent=True)
 
@@ -478,22 +482,18 @@ class GRest(FlaskView):
                             if related_item:
                                 return serialize(dict(result="OK"))
                             else:
-                                return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                                ) + " does not exist or the provided information is invalid."])), 404
+                                raise HTTPException("Selected " + secondary_model.__name__.lower(
+                                ) + " does not exist or the provided information is invalid.", 404)
                         else:
-                            return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                            ) + " does not exist or the provided information is invalid."])), 404
+                            raise HTTPException("Selected " + secondary_model.__name__.lower(
+                            ) + " does not exist or the provided information is invalid.", 404)
                     else:
-                        return serialize(dict(errors=[
-                            "One of the selected models does not exist or the provided information is invalid."])), 404
+                        raise HTTPException("One of the selected models does not exist or the provided information is invalid.", 404)
 
-                return serialize(dict(errors=["Invalid information provided."])), 404
+                raise HTTPException("Invalid information provided.", 404)
         except DoesNotExist as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["The requested item or relation does not exist."])), 404
-        except Exception as e:
-            self.__log.exception(e)
-            return serialize(dict(errors=["An error occurred while processing your request."])), 500
+            raise HTTPException("The requested item or relation does not exist.", 404)
 
     @route("/<primary_id>", methods=["PATCH"])
     @authenticate
@@ -517,14 +517,14 @@ class GRest(FlaskView):
                         primary_model.__validation_rules__, request)
                 except:
                     self.__log.debug("Validation failed!")
-                    return serialize(dict(errors=["One or more of the required fields is missing or incorrect."])), 422
+                    raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
             else:
                 json_data = request.get_json(silent=True)
 
             if not json_data:
                 # if a non-existent property is present or misspelled,
                 # the json_data property is empty!
-                return serialize(dict(errors=["A property is invalid, missing or misspelled!"])), 409
+                raise HTTPException("A property is invalid, missing or misspelled!", 409)
 
             if primary_id:
                 selected_item = primary_model.nodes.get_or_none(
@@ -540,19 +540,16 @@ class GRest(FlaskView):
                         if updated_item:
                             return serialize(dict(result="OK"))
                         else:
-                            return serialize(dict(errors=["There was an error updating your desired item."])), 500
+                            raise HTTPException("There was an error updating your desired item.", 500)
                     else:
-                        return serialize(dict(errors=["Invalid information provided."])), 404
+                        raise HTTPException("Invalid information provided.", 404)
                 else:
-                    return serialize(dict(errors=["Item does not exist."])), 404
+                    raise HTTPException("Item does not exist.", 404)
             else:
-                return serialize(dict(errors=[primary_model.__name__ + " id is not provided or is invalid."])), 404
+                raise HTTPException(primary_model.__name__ + " id is not provided or is invalid.", 404)
         except DoesNotExist as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["The requested item or relation does not exist."])), 404
-        except Exception as e:
-            self.__log.exception(e)
-            return serialize(dict(errors=["An error occurred while processing your request."])), 500
+            raise HTTPException("The requested item or relation does not exist.", 404)
 
     @route("/<primary_id>", methods=["DELETE"])
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["DELETE"])
@@ -585,7 +582,7 @@ class GRest(FlaskView):
                     secondary_model_name)
 
             if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-                return serialize(dict(errors=["Selected relation does not exist."])), 404
+                raise HTTPException("Selected relation does not exist.", 404)
 
             if primary_id and secondary_model_name is None and secondary_id is None:
                 selected_item = primary_model.nodes.get_or_none(
@@ -596,9 +593,9 @@ class GRest(FlaskView):
                         if selected_item.delete():
                             return serialize(dict(result="OK"))
                         else:
-                            return serialize(dict(errors=["There was an error deleting the item."])), 500
+                            raise HTTPException("There was an error deleting the item.", 500)
                 else:
-                    return serialize(dict(errors=["Item does not exist."])), 404
+                    raise HTTPException("Item does not exist.", 404)
             else:
                 if primary_id and secondary_model_name and secondary_id:
                     # user either wants to update a relation or
@@ -616,7 +613,7 @@ class GRest(FlaskView):
                             related_item = secondary_selected_item in relation.all()
 
                             if not related_item:
-                                return serialize(dict(errors=["Relation does not exist!"])), 409
+                                raise HTTPException("Relation does not exist!", 409)
                             else:
                                 with db.transaction:
                                     relation.disconnect(
@@ -625,17 +622,14 @@ class GRest(FlaskView):
                                 if secondary_selected_item not in relation.all():
                                     return serialize(dict(result="OK"))
                                 else:
-                                    return serialize(dict(errors=["There was an error removing the selected relation."])), 500
+                                    raise HTTPException("There was an error removing the selected relation.", 500)
                         else:
-                            return serialize(dict(errors=["Selected " + secondary_model.__name__.lower(
-                            ) + " does not exist or the provided information is invalid."])), 404
+                            raise HTTPException("Selected " + secondary_model.__name__.lower(
+                            ) + " does not exist or the provided information is invalid.", 404)
                     else:
-                        return serialize(dict(errors=["Selected " + primary_model.__name__.lower(
-                        ) + " does not exist or the provided information is invalid."])), 404
-                return serialize(dict(errors=[primary_model.__name__ + " id is not provided or is invalid."])), 404
+                        raise HTTPException("Selected " + primary_model.__name__.lower(
+                        ) + " does not exist or the provided information is invalid.", 404)
+                raise HTTPException(primary_model.__name__ + " id is not provided or is invalid.", 404)
         except DoesNotExist as e:
             self.__log.exception(e)
-            return serialize(dict(errors=["The requested item or relation does not exist."])), 404
-        except Exception as e:
-            self.__log.exception(e)
-            return serialize(dict(errors=["An error occurred while processing your request."])), 500
+            raise HTTPException("The requested item or relation does not exist.", 404)
