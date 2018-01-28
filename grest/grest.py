@@ -214,7 +214,7 @@ class GRest(FlaskView):
                                         item_info = item.to_dict()
                                         relation = getattr(primary_model, secondary_model_name)
                                         if (relation.definition["model"] is not None):
-                                            item_info["relationship"] = related_item.to_dict()
+                                            item_info["relationship"] = item.to_dict()
                                         relationships.append(item_info)
 
                                     return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
