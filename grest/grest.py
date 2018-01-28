@@ -180,12 +180,15 @@ class GRest(FlaskView):
                                 relationship = getattr(
                                     primary_selected_item, secondary_model_name).relationship(related_item)
 
+                                relation = getattr(primary_model, secondary_model_name)
+
                                 if related_item:
-                                    relation = related_item.to_dict()
-                                    relation.update(
-                                        {"relationship": relationship.to_dict()})
+                                    relation_data = related_item.to_dict()
+                                    if (relation.definition["model"] is not None):
+                                        relation_data.update(
+                                            {"relationship": relationship.to_dict()})
                                     return serialize({secondary_model.__name__.lower():
-                                                      relation})
+                                                      relation_data})
                                 else:
                                     raise HTTPException("Selected " + secondary_model.__name__.lower(
                                     ) + " does not exist or the provided information is invalid.", 404)
@@ -209,8 +212,9 @@ class GRest(FlaskView):
                                     relationships = []
                                     for item in related_items:
                                         item_info = item.to_dict()
-                                        item_info["relationship"] = getattr(
-                                            primary_selected_item, secondary_model_name).relationship(item).to_dict()
+                                        relation = getattr(primary_model, secondary_model_name)
+                                        if (relation.definition["model"] is not None):
+                                            item_info["relationship"] = related_item.to_dict()
                                         relationships.append(item_info)
 
                                     return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
@@ -297,9 +301,6 @@ class GRest(FlaskView):
                     if not item:
                         with db.transaction:
                             item = primary_model(**json_data).save()
-                            # if (primary_model == Post and g.user):
-                            #     item.creator.connect(g.user)
-                            #     item.save()
                             item.refresh()
                         return serialize({primary_selection_field:
                                           getattr(item, primary_selection_field)})
