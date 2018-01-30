@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get(
 DB_URL = os.environ.get("DB_URL") or "bolt://neo4j:neo4j@localhost:7687"
 
 X_AUTH_TOKEN = "X-AUTH-TOKEN"
-CONTENT_TYPE = "CONTENT_TYPE"
+CONTENT_TYPE = "CONTENT-TYPE"
 ACCEPT = "ACCEPT"
 
 LOG_ENABLED = False
