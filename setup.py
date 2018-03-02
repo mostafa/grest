@@ -33,7 +33,7 @@ For more information, visit github page of `the project <https://github.com/most
           "neomodel",
           "webargs",
           "markupsafe",
-          "inflect",
+          "inflection",
           "autologging",
           "requests",
           "pyaml",

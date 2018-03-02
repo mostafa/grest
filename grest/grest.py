@@ -1,5 +1,5 @@
 import markupsafe
-import inflect
+import inflection
 from flask import request
 from flask_classful import FlaskView, route
 from neomodel import db, StructuredNode
@@ -116,7 +116,7 @@ class GRest(FlaskView):
             page = primary_model.nodes.order_by(order_by)[start:count]
 
             if page:
-                return serialize({inflect.engine().plural(primary_model.__name__.lower()):
+                return serialize({inflection.pluralize(primary_model.__name__.lower()):
                                   [item.to_dict() for item in page]})
             else:
                 raise HTTPException(
@@ -217,7 +217,7 @@ class GRest(FlaskView):
                                             item_info["relationship"] = item.to_dict()
                                         relationships.append(item_info)
 
-                                    return serialize({inflect.engine().plural(secondary_model.__name__.lower()):
+                                    return serialize({inflection.pluralize(secondary_model.__name__.lower()):
                                                       relationships})
                                 else:
                                     raise HTTPException("Selected " + secondary_model.__name__.lower(
