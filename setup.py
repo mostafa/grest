@@ -48,7 +48,8 @@ For more information, visit github page of `the project <https://github.com/most
           "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
           "Programming Language :: Python :: 2",
           "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3"
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.6"
       ],
       # keywords='',
       setup_requires=['pytest-runner'],
