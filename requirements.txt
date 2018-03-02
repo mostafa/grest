@@ -1,0 +1,14 @@
+Autologging==1.1.0
+dicttoxml==1.7.4
+Flask==0.12.2
+Flask_Classful==0.14.1
+inflect==0.2.5
+MarkupSafe==1.0
+neomodel==3.2.5
+pytest==3.0.6
+requests==2.18.4
+setuptools==36.0.1
+Unidecode==0.04.20
+webargs==1.8.1
+Werkzeug==0.14.1
+PyYAML==3.12
