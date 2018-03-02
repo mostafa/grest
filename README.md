@@ -7,6 +7,7 @@ Build REST APIs with Neo4j and Flask, as quickly as possible!
 [![Travis](https://img.shields.io/travis/mostafa/grest.svg)](https://travis-ci.org/mostafa/grest)
 [![Coverage Status](https://coveralls.io/repos/github/mostafa/grest/badge.svg?branch=master)](https://coveralls.io/github/mostafa/grest?branch=master)
 [![Join the chat at https://gitter.im/pygrest/Lobby](https://badges.gitter.im/pygrest/Lobby.svg)](https://gitter.im/pygrest/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmostafa%2Fgrest.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmostafa%2Fgrest?ref=badge_shield)
 
 gREST (Graph-based REST API Framework) is a RESTful API development framework on top of Python, Flask, Neo4j and Neomodel. Its primary purpose is to ease development of RESTful APIs with little effort and miminum amount of code.
 
@@ -143,3 +144,6 @@ Contribution is always welcome!
 
 ## License
 [GPLv3](https://github.com/mostafa/grest/blob/master/LICENSE)
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmostafa%2Fgrest.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmostafa%2Fgrest?ref=badge_large)
