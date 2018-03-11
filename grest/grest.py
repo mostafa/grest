@@ -330,15 +330,18 @@ class GRest(FlaskView):
                             raise HTTPException("Relation exists!", 409)
                         else:
                             # parse input data as relation's (validate or not!)
-                            if relation.definition["model"].__validation_rules__:
-                                try:
-                                    json_data = parser.parse(
-                                        relation.definition["model"].__validation_rules__, request)
-                                except:
-                                    self.__log.debug("Validation failed!")
-                                    raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
+                            if ("__validation_rules__" in relation.definition["model"]):
+                                if relation.definition["model"].__validation_rules__:
+                                    try:
+                                        json_data = parser.parse(
+                                            relation.definition["model"].__validation_rules__, request)
+                                    except:
+                                        self.__log.debug("Validation failed!")
+                                        raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
+                                else:
+                                    json_data = request.get_json(silent=True)
                             else:
-                                json_data = request.get_json(silent=True)
+                                json_data = {}
 
                             with db.transaction:
                                 related_item = relation.connect(
@@ -461,15 +464,18 @@ class GRest(FlaskView):
                             all_relations = relation.all()
 
                             # parse input data as relation's (validate or not!)
-                            if relation.definition["model"].__validation_rules__:
-                                try:
-                                    json_data = parser.parse(
-                                        relation.definition["model"].__validation_rules__, request)
-                                except:
-                                    self.__log.debug("Validation failed!")
-                                    raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
+                            if ("__validation_rules__" in relation.definition["model"]):
+                                if relation.definition["model"].__validation_rules__:
+                                    try:
+                                        json_data = parser.parse(
+                                            relation.definition["model"].__validation_rules__, request)
+                                    except:
+                                        self.__log.debug("Validation failed!")
+                                        raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
+                                else:
+                                    json_data = request.get_json(silent=True)
                             else:
-                                json_data = request.get_json(silent=True)
+                                json_data = {}
 
                             with db.transaction:
                                 # remove all relationships
