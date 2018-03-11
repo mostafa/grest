@@ -330,8 +330,8 @@ class GRest(FlaskView):
                             raise HTTPException("Relation exists!", 409)
                         else:
                             # parse input data as relation's (validate or not!)
-                            if ("__validation_rules__" in relation.definition["model"]):
-                                if relation.definition["model"].__validation_rules__:
+                            if (relation.definition["model"] is not None):
+                                if (relation.definition["model"].__validation_rules__):
                                     try:
                                         json_data = parser.parse(
                                             relation.definition["model"].__validation_rules__, request)
@@ -344,8 +344,12 @@ class GRest(FlaskView):
                                 json_data = {}
 
                             with db.transaction:
-                                related_item = relation.connect(
-                                    secondary_selected_item, json_data)
+                                if (json_data == {}):
+                                    related_item = relation.connect(
+                                        secondary_selected_item)
+                                else:
+                                    related_item = relation.connect(
+                                        secondary_selected_item, json_data)
 
                             if related_item:
                                 return serialize(dict(result="OK"))
@@ -464,8 +468,8 @@ class GRest(FlaskView):
                             all_relations = relation.all()
 
                             # parse input data as relation's (validate or not!)
-                            if ("__validation_rules__" in relation.definition["model"]):
-                                if relation.definition["model"].__validation_rules__:
+                            if (relation.definition["model"] is not None):
+                                if (relation.definition["model"].__validation_rules__):
                                     try:
                                         json_data = parser.parse(
                                             relation.definition["model"].__validation_rules__, request)
@@ -483,8 +487,12 @@ class GRest(FlaskView):
                                     relation.disconnect(each_relation)
 
                                 # add a new relationship with data
-                                related_item = relation.connect(
-                                    secondary_selected_item, json_data)
+                                if (json_data == {}):
+                                    related_item = relation.connect(
+                                        secondary_selected_item)
+                                else:
+                                    related_item = relation.connect(
+                                        secondary_selected_item, json_data)
 
                             if related_item:
                                 return serialize(dict(result="OK"))
