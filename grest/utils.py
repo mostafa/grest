@@ -196,7 +196,7 @@ def authorize(func):
         # authorize users here!
         try:
             if hasattr(app, "authorization_function"):
-                app.authentication_function(self)
+                app.authorization_function(self)
                 return func(self, *args, **kwargs)
             else:
                 return func(self, *args, **kwargs)
