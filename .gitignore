@@ -94,3 +94,6 @@ test.bat
 
 # jet brains
 .idea
+
+# VSCode
+.vscode/
