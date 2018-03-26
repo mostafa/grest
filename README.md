@@ -9,7 +9,7 @@ Build REST APIs with Neo4j and Flask, as quickly as possible!
 [![Join the chat at https://gitter.im/pygrest/Lobby](https://badges.gitter.im/pygrest/Lobby.svg)](https://gitter.im/pygrest/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmostafa%2Fgrest.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fmostafa%2Fgrest?ref=badge_shield)
 
-gREST (Graph-based REST API Framework) is a RESTful API development framework on top of Python, Flask, Neo4j and Neomodel. Its primary purpose is to ease development of RESTful APIs with little effort and miminum amount of code.
+gREST (Graph-based REST API Framework) is a RESTful API development framework on top of Python, Flask, Neo4j and Neomodel. Its primary purpose is to ease development of RESTful APIs with little effort and minimum amount of code.
 
 ## Features
 * Supported HTTP verbs: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
