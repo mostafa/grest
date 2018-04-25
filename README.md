@@ -69,14 +69,14 @@ To use gREST, you should define your models with [Neomodel](http://neomodel.read
 
 ~~~~python
 from neomodel import (StructuredNode, UniqueIdProperty, StringProperty)
-from grest import utils
+from grest import models
 
-class Person(StructuredNode, utils.Node):
+class Person(StructuredNode, models.Node):
     uid = UniqueIdProperty()
     first_name = StringProperty()
     last_name = StringProperty()
 ~~~~
-As you can see, we have imported `utils` from `grest`, so that we can use the `Node` mixin (which is used in JSON serialization of model data). Also note that the `Person` class (model) is inheriting from two parents: `StructuredNode` and `Node`.
+As you can see, we have imported `models` from `grest`, so that we can use the `Node` mixin (which is used in JSON serialization of model data). Also note that the `Person` class (model) is inheriting from two parents: `StructuredNode` and `Node`.
 
 Then we should inherit from `grest` to make a new view of our model (so that it accepts RESTful verbs):
 ~~~~python
@@ -93,17 +93,17 @@ You should register this view:
 PersonsView.register(app, route_base="/persons", trailing_slash=False)
 ~~~~
 
-User input should never be trusted, so input validation is done through using [webargs](https://github.com/sloria/webargs):
+User input should never be trusted, so input validation is done by using [webargs](https://github.com/sloria/webargs):
 To include input validation in each model, you should include `__validation_rules__` property, which is a mapping dictionary of keys (models' fields) and values (data type and validation rules).
 
-`__validation_rules__` property is there for customization of validation rules, with the new release v0.2.1, validation rules are inferred and constructred from your models' properties, so it is unnecessary to define it in most cases.
+`__validation_rules__` property is there for customization of validation rules, with the release of version 0.2.1, validation rules are inferred and constructred from your models' properties, so it is unnecessary to define it in most cases.
 
 ~~~~python
 from neomodel import (StructuredNode, UniqueIdProperty, StringProperty)
-from grest import utils
+from grest import models
 from webargs import fields
 
-class Person(StructuredNode, utils.Node):
+class Person(StructuredNode, models.Node):
     __validation_rules__ = {
         "uid": fields.Str(),
         "first_name": fields.Str(),
@@ -117,7 +117,7 @@ class Person(StructuredNode, utils.Node):
 
 You can override default behavior of HTTP verbs (index, get, post, put, patch and delete) and also make custom endpoints under this `PersonsView` class.
 
-Last but not least, you should set up connection to your database, which is achieved by setting the `DATABASE_URL` propery of `neomodel.config`:
+Last but not least, you should set up your app's connection to the database (Neo4j), which is done by setting the `DATABASE_URL` propery of `neomodel.config`:
 ~~~~python
 neomodel.config.DATABASE_URL = "bolt://neo4j:neo4j@localhost:7687"
 ~~~~
@@ -130,17 +130,17 @@ app.ext_logger = app.logger
 `app.ext_logger` is the variable grest looks for, to log messages.
 
 ## Deployment
-You can run this app either in development or production:
+You can run this app either in development or production environments:
 
 As it is the same flask application, you can run it in development like this:
 ~~~~bash
 $ python app.py
 ~~~~
 
-For production, you can use docker using `tiangolo/uwsgi-nginx-flask:flask` image or use your own setup.
+For production purposes, you can use docker using `tiangolo/uwsgi-nginx-flask:python2.7` image or use your own setup.
 
 ## Contribution
-Contribution is always welcome!
+Contribution is always welcome! To report bugs, simply open an issue and fill it with related information. To fix a bug, fork the repository, fix the bug, push to your own fork, make a pull request and done!
 
 ## License
 [GPLv3](https://github.com/mostafa/grest/blob/master/LICENSE)
