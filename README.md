@@ -21,6 +21,7 @@ gREST (Graph-based REST API Framework) is a RESTful API development framework on
 * Deep relationship support between nodes: */primary_model/primary_model_item/related_model/related_model_item*
 * Support for getting/posting relationship data between nodes
 * Support for user-defined authentication and authorization
+* Support for unicode routes (e.g. unicode tags)
 
 
 ## Installation
