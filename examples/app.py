@@ -1,3 +1,23 @@
+# -*- coding: utf8 -*-
+#
+# Copyright (C) 2018 Mostafa Moradian <mostafamoradian0@gmail.com>
+#
+# This file is part of grest.
+#
+# grest is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# grest is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with grest.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 import logging
 import os
 
@@ -6,11 +26,11 @@ import neomodel
 from neomodel import StructuredNode, StringProperty, UniqueIdProperty
 from webargs import fields
 
-from grest import GRest, utils, global_config
+from grest import GRest, utils, models, global_config
 
 
 # noinspection PyAbstractClass
-class Person(StructuredNode, utils.Node):
+class Person(StructuredNode, models.Node):
     """Person model"""
     __validation_rules__ = {
         "uid": fields.Str(),

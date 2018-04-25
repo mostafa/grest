@@ -18,6 +18,15 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .grest import GRest
+class HTTPException(Exception):
 
-__version__ = '0.5.4'
+    """
+        Base class for all http exceptions raised in all functions
+    """
+
+    def __init__(self, message, status_code):
+        self.message = message
+        self.status_code = status_code
+
+    def __str__(self):
+        return self.message

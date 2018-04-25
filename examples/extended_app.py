@@ -1,3 +1,23 @@
+# -*- coding: utf8 -*-
+#
+# Copyright (C) 2018 Mostafa Moradian <mostafamoradian0@gmail.com>
+#
+# This file is part of grest.
+#
+# grest is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# grest is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with grest.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 from flask import Flask, jsonify
 from flask_classful import route
 import markupsafe
@@ -6,25 +26,25 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       UniqueIdProperty, RelationshipFrom, RelationshipTo,
                       StructuredRel)
 from webargs import fields
-from grest import GRest, utils, global_config
+from grest import GRest, utils, models, global_config
 import logging
 import logging.handlers
 import os
 
 
-class PetInfo(StructuredRel, utils.Relation):
+class PetInfo(StructuredRel, models.Relation):
     """Pet Information Model (for relationship)"""
     adopted_since = IntegerProperty()
 
 
-class Pet(StructuredNode, utils.Node):
+class Pet(StructuredNode, models.Node):
     """Pet model"""
     pet_id = UniqueIdProperty()
     name = StringProperty()
     owner = RelationshipFrom("Person", "HAS_PET")
 
 
-class Person(StructuredNode, utils.Node):
+class Person(StructuredNode, models.Node):
     """Person model"""
     __validation_rules__ = {
         "first_name": fields.Str(),
