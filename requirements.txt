@@ -4,11 +4,11 @@ Flask==0.12.2
 Flask_Classful==0.14.1
 inflection==0.3.1
 MarkupSafe==1.0
-neomodel==3.2.5
-pytest==3.0.6
+neomodel==3.2.7
+pytest==3.5.1
 requests==2.18.4
-setuptools==36.0.1
+setuptools==39.0.1
 Unidecode==0.04.20
-webargs==1.8.1
+webargs==2.1.0
 Werkzeug==0.14.1
 PyYAML==3.12

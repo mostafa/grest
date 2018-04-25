@@ -1,5 +1,7 @@
-import markupsafe
-import inflection
+from __future__ import unicode_literals
+from urllib2 import unquote
+from markupsafe import escape_silent as escape
+from inflection import pluralize
 from flask import request
 from flask_classful import FlaskView, route
 from neomodel import db, StructuredNode
@@ -90,7 +92,7 @@ class GRest(FlaskView):
             all_properties = [prop
                               for prop in primary_model.defined_properties().keys()]
 
-            order_by = str(markupsafe.escape(
+            order_by = str(escape(
                 query_data.get("order_by"))) or "?"
 
             if order_by:
@@ -116,8 +118,8 @@ class GRest(FlaskView):
             page = primary_model.nodes.order_by(order_by)[start:count]
 
             if page:
-                return serialize({inflection.pluralize(primary_model.__name__.lower()):
-                                  [item.to_dict() for item in page]})
+                return serialize({pluralize(primary_model.__name__.lower()):
+                                  map(lambda item: item.to_dict(), page)})
             else:
                 raise HTTPException(
                     "No " + primary_model.__name__.lower() + " exists.", 404)
@@ -146,6 +148,12 @@ class GRest(FlaskView):
         MATCH (u:User)-[LIKES]->(p:Post) WHERE n.user_id = "123456789" RETURN p
         """
         try:
+            primary_id = unquote(primary_id)
+            if (secondary_model_name):
+                secondary_model_name = unquote(secondary_model_name)
+            if (secondary_id):
+                secondary_id = unquote(secondary_id)
+
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
             secondary_model = secondary_selection_field = None
@@ -170,12 +178,12 @@ class GRest(FlaskView):
                         # /users/user_id/roles/role_id -> selected role of this user
                         # /categories/cat_id/tags/tag_id -> selected tag of this category
                         primary_selected_item = primary_model.nodes.get_or_none(
-                            **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                            **{primary_selection_field: str(escape(primary_id))})
                         if primary_selected_item:
                             if hasattr(primary_selected_item, secondary_model_name):
                                 related_item = getattr(
                                     primary_selected_item, secondary_model_name).get(
-                                    **{secondary_selection_field: str(markupsafe.escape(secondary_id))})
+                                    **{secondary_selection_field: str(escape(secondary_id))})
 
                                 relationship = getattr(
                                     primary_selected_item, secondary_model_name).relationship(related_item)
@@ -202,7 +210,7 @@ class GRest(FlaskView):
                         # user selected a nested model with primary key (from the primary and the secondary models)
                         # /users/user_1/roles -> all roles for this user
                         primary_selected_item = primary_model.nodes.get_or_none(
-                            **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                            **{primary_selection_field: str(escape(primary_id))})
                         if primary_selected_item:
                             if hasattr(primary_selected_item, secondary_model_name):
                                 related_items = getattr(
@@ -217,7 +225,7 @@ class GRest(FlaskView):
                                             item_info["relationship"] = item.to_dict()
                                         relationships.append(item_info)
 
-                                    return serialize({inflection.pluralize(secondary_model.__name__.lower()):
+                                    return serialize({pluralize(secondary_model.__name__.lower()):
                                                       relationships})
                                 else:
                                     raise HTTPException("Selected " + secondary_model.__name__.lower(
@@ -231,7 +239,7 @@ class GRest(FlaskView):
                 else:
                     # user selected a single item (from the primary model)
                     selected_item = primary_model.nodes.get_or_none(
-                        **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                        **{primary_selection_field: str(escape(primary_id))})
 
                     if selected_item:
                         return serialize({primary_model.__name__.lower(): selected_item.to_dict()})
@@ -259,6 +267,13 @@ class GRest(FlaskView):
         :type: str
         """
         try:
+            if (primary_id):
+                primary_id = unquote(primary_id)
+            if (secondary_model_name):
+                secondary_model_name = unquote(secondary_model_name)
+            if (secondary_id):
+                secondary_id = unquote(secondary_id)
+
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
             secondary_model = secondary_selection_field = None
@@ -313,10 +328,10 @@ class GRest(FlaskView):
                 # user either wants to update a relation or
                 # has provided invalid information
                 primary_selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                    **{primary_selection_field: str(escape(primary_id))})
 
                 secondary_selected_item = secondary_model.nodes.get_or_none(
-                    **{secondary_selection_field: str(markupsafe.escape(secondary_id))})
+                    **{secondary_selection_field: str(escape(secondary_id))})
 
                 if primary_selected_item and secondary_selected_item:
                     if hasattr(primary_selected_item, secondary_model_name):
@@ -387,6 +402,12 @@ class GRest(FlaskView):
         :type: str
         """
         try:
+            primary_id = unquote(primary_id)
+            if (secondary_model_name):
+                secondary_model_name = unquote(secondary_model_name)
+            if (secondary_id):
+                secondary_id = unquote(secondary_id)
+
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
             secondary_model = secondary_selection_field = None
@@ -409,7 +430,7 @@ class GRest(FlaskView):
                 # a single item is going to be updated(/replaced) with the
                 # provided JSON data
                 selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                    **{primary_selection_field: str(escape(primary_id))})
 
                 if selected_item:
                     # parse input data (validate or not!)
@@ -454,10 +475,10 @@ class GRest(FlaskView):
                     # user either wants to update a relation or
                     # has provided invalid information
                     primary_selected_item = primary_model.nodes.get_or_none(
-                        **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                        **{primary_selection_field: str(escape(primary_id))})
 
                     secondary_selected_item = secondary_model.nodes.get_or_none(
-                        **{secondary_selection_field: str(markupsafe.escape(secondary_id))})
+                        **{secondary_selection_field: str(escape(secondary_id))})
 
                     if primary_selected_item and secondary_selected_item:
                         if hasattr(primary_selected_item, secondary_model_name):
@@ -521,6 +542,8 @@ class GRest(FlaskView):
 
         Note: updating relations via PATCH is not supported.
         """
+        primary_id = unquote(primary_id)
+
         try:
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
@@ -543,7 +566,7 @@ class GRest(FlaskView):
 
             if primary_id:
                 selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                    **{primary_selection_field: str(escape(primary_id))})
 
                 if selected_item:
                     if json_data:
@@ -581,6 +604,12 @@ class GRest(FlaskView):
         :type: str
         """
         try:
+            primary_id = unquote(primary_id)
+            if (secondary_model_name):
+                secondary_model_name = unquote(secondary_model_name)
+            if (secondary_id):
+                secondary_id = unquote(secondary_id)
+
             primary_model = self.__model__.get("primary")
             primary_selection_field = self.__selection_field__.get("primary")
             secondary_model = secondary_selection_field = None
@@ -601,7 +630,7 @@ class GRest(FlaskView):
 
             if primary_id and secondary_model_name is None and secondary_id is None:
                 selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                    **{primary_selection_field: str(escape(primary_id))})
 
                 if selected_item:
                     with db.transaction:
@@ -616,10 +645,10 @@ class GRest(FlaskView):
                     # user either wants to update a relation or
                     # has provided invalid information
                     primary_selected_item = primary_model.nodes.get_or_none(
-                        **{primary_selection_field: str(markupsafe.escape(primary_id))})
+                        **{primary_selection_field: str(escape(primary_id))})
 
                     secondary_selected_item = secondary_model.nodes.get_or_none(
-                        **{secondary_selection_field: str(markupsafe.escape(secondary_id))})
+                        **{secondary_selection_field: str(escape(secondary_id))})
 
                     if primary_selected_item and secondary_selected_item:
                         if hasattr(primary_selected_item, secondary_model_name):
