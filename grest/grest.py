@@ -19,12 +19,18 @@
 #
 
 from __future__ import unicode_literals
+import os
+import sys
+import imp
+imp.reload(sys)
 
 try:
     # For Python 3.0 and later
+    os.environ["PYTHONIOENCODING"] = "utf-8"
     from urllib.request import unquote
 except ImportError:
     # Fall back to Python 2's urllib2
+    sys.setdefaultencoding("utf-8")  # FIXME: a better way should be found! 
     from urllib2 import unquote
 
 from markupsafe import escape_silent as escape
