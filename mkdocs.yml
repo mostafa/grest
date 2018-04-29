@@ -1,0 +1,20 @@
+site_name: gREST
+pages:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - Application: application.md
+  - Configuration: configuration.md
+  - Authentication & Authorization: authentication_authorization.md
+  - Views: views.md
+  - Routes: routes.md
+  - Models: models.md
+  - Custom Endpoints: custom_endpoints.md
+  - Deployment: deployment.md
+  - License: license.md
+  - About: about.md
+theme:
+  name: material
+  palette:
+    primary: 'Blue Grey'
+    accent: 'Amber'
+  logo: 'img/gREST-logo.png'
