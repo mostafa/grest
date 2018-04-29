@@ -1,6 +1,7 @@
 site_name: gREST
 pages:
   - Home: index.md
+  - Installation: installation.md
   - Tutorial: tutorial.md
   - Application: application.md
   - Configuration: configuration.md
@@ -18,3 +19,5 @@ theme:
     primary: 'Blue Grey'
     accent: 'Amber'
   logo: 'img/gREST-logo.png'
+markdown_extensions:
+  - fenced_code

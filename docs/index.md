@@ -1,17 +1,5 @@
-# Welcome to MkDocs
+# gREST - Graph-based REST API Framework
 
-For full documentation visit [mkdocs.org](http://mkdocs.org).
+gREST is a RESTful API development framework on top of Python, Flask, Neo4j and Neomodel. Its primary purpose is to ease development of RESTful APIs with little effort and minimum amount of code. To achieve this, I've made choices to make it easy for developers to construct an API quickly and easily.
 
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+Throughout this documentation, I will show you how to develop a simple API and customize it wherever and whenever you want!
