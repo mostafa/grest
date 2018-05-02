@@ -45,6 +45,9 @@ $ cd path/to/project
 $ pip install -e .
 ```
 
+## Documentation
+For detailed documentation, please visit [http://grest.readthedocs.io/](http://grest.readthedocs.io/).
+
 ## Examples
 You can find an example app in [examples](https://github.com/mostafa/grest/tree/master/examples) directory.
 + `app.py` is a simple grest app that contains only one route `(/persons)`.
