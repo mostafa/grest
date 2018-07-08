@@ -6,7 +6,7 @@ inflection==0.3.1
 MarkupSafe==1.0
 neomodel==3.2.9
 pytest==3.6.3
-requests==2.18.4
+requests==2.19.1
 setuptools==39.0.1
 Unidecode==0.04.20
 webargs==2.1.0
