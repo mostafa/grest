@@ -1,7 +1,6 @@
 language: python
-sudo: required
-dist: trusty
-group: deprecated-2017Q2
+sudo: yes
+distro: xenial
 
 jdk:
   - oraclejdk8
@@ -24,8 +23,8 @@ python:
   - "2.7"
   - "3.6"
   - "3.7"
-  - "pypy"
-  # - "pypy3"
+#  - "pypy2.7"
+#  - "pypy3.5"
 
 install:
   - pip install -r requirements.txt
