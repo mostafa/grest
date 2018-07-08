@@ -1,6 +1,6 @@
 language: python
 sudo: yes
-distro: xenial
+dist: xenial
 
 jdk:
   - oraclejdk8
@@ -23,8 +23,8 @@ python:
   - "2.7"
   - "3.6"
   - "3.7"
-#  - "pypy2.7"
-#  - "pypy3.5"
+  - "pypy2.7"
+  - "pypy3.5"
 
 install:
   - pip install -r requirements.txt
