@@ -23,7 +23,7 @@ import json
 from flask import request, jsonify, current_app as app
 import markupsafe
 import requests
-from pyaml import yaml
+import yaml
 import dicttoxml
 from . import global_config
 
