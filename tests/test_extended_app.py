@@ -21,7 +21,7 @@
 import json
 import xml.etree.ElementTree as ET
 import pytest
-from pyaml import yaml
+import yaml
 from examples.extended_app import create_app
 
 
