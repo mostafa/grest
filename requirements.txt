@@ -1,6 +1,6 @@
 Autologging==1.1.0
 dicttoxml==1.7.4
-Flask==0.12.2
+Flask==1.0.2
 Flask_Classful==0.14.1
 inflection==0.3.1
 MarkupSafe==1.0
