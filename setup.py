@@ -68,7 +68,7 @@ For more information, visit github page of `the project <https://github.com/most
           "Programming Language :: Python :: 2",
           "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.6"
+          "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: 3.7"
       ],
       # keywords='',

@@ -4,11 +4,11 @@ pages:
   - Installation: installation.md
   - Tutorial: tutorial.md
   - Application: application.md
-  - Configuration: configuration.md
   - Authentication & Authorization: authentication_authorization.md
   - Views: views.md
   - Routes: routes.md
   - Models: models.md
+  - Configuration: configuration.md
   - Custom Endpoints: custom_endpoints.md
   - Deployment: deployment.md
   - License: license.md
