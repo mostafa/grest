@@ -50,6 +50,7 @@ from .verbs.index import index
 from .verbs.get import get
 from .verbs.post import post
 from .verbs.put import put
+from .verbs.patch import patch
 from .exceptions import HTTPException
 
 
@@ -122,59 +123,7 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def patch(self, primary_id):
-        """
-        Partially updates a node
-        :param primary_id: unique id of the primary (source) node (model)
-        :type: str
-
-        Note: updating relations via PATCH is not supported.
-        """
-        primary_id = unquote(primary_id)
-
-        try:
-            primary_model = self.__model__.get("primary")
-            primary_selection_field = self.__selection_field__.get("primary")
-
-            if primary_model.__validation_rules__:
-                # noinspection PyBroadException
-                try:
-                    json_data = parser.parse(
-                        primary_model.__validation_rules__, request)
-                except:
-                    self.__log.debug("Validation failed!")
-                    raise HTTPException("One or more of the required fields is missing or incorrect.", 422)
-            else:
-                json_data = request.get_json(silent=True)
-
-            if not json_data:
-                # if a non-existent property is present or misspelled,
-                # the json_data property is empty!
-                raise HTTPException("A property is invalid, missing or misspelled!", 409)
-
-            if primary_id:
-                selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(escape(primary_id))})
-
-                if selected_item:
-                    if json_data:
-                        with db.transaction:
-                            selected_item.__dict__.update(json_data)
-                            updated_item = selected_item.save()
-                            selected_item.refresh()
-
-                        if updated_item:
-                            return serialize(dict(result="OK"))
-                        else:
-                            raise HTTPException("There was an error updating your desired item.", 500)
-                    else:
-                        raise HTTPException("Invalid information provided.", 404)
-                else:
-                    raise HTTPException("Item does not exist.", 404)
-            else:
-                raise HTTPException(primary_model.__name__ + " id is not provided or is invalid.", 404)
-        except DoesNotExist as e:
-            self.__log.exception(e)
-            raise HTTPException("The requested item or relation does not exist.", 404)
+        return patch(self, request, primary_id)
 
     @route("/<primary_id>", methods=["DELETE"])
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["DELETE"])
