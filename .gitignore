@@ -97,3 +97,6 @@ test.bat
 
 # VSCode
 .vscode/
+
+# pytest cache
+.pytest_cache/
