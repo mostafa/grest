@@ -31,6 +31,8 @@ from grest.utils import serialize
 def index(self, request):
     """
     Returns an specified number of nodes, with pagination (skip/limit)
+    :param request: Flask's current request object (passed from gREST)
+    :type: request
     :param skip: skips the specified amount of nodes (offset/start)
     :type: int
     :param limit: number of nodes to return (shouldn't be more than total nodes)

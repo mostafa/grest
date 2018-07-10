@@ -36,9 +36,9 @@ from grest.global_config import QUERY_LIMIT
 from grest.utils import serialize
 
 
-def post(self, request, primary_id=None, secondary_model_name=None, secondary_id=None):
+def put(self, request, primary_id, secondary_model_name=None, secondary_id=None):
     """
-    Updates an specified node or its relation (creates relation, if none exists)
+    Deletes and inserts a new node or a new relation (with data)
     :param request: Flask's current request object (passed from gREST)
     :type: request
     :param primary_id: unique id of the primary (source) node (model)
@@ -52,8 +52,7 @@ def post(self, request, primary_id=None, secondary_model_name=None, secondary_id
         # patch __log
         self.__log = self._GRest__log
 
-        if (primary_id):
-            primary_id = unquote(primary_id)
+        primary_id = unquote(primary_id)
         if (secondary_model_name):
             secondary_model_name = unquote(secondary_model_name)
         if (secondary_id):
@@ -77,11 +76,16 @@ def post(self, request, primary_id=None, secondary_model_name=None, secondary_id
         if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
             raise HTTPException("Selected relation does not exist.", 404)
 
-        if not (primary_id and secondary_model and secondary_id):
-            # user wants to add a new item
-            try:
+        if primary_id and secondary_model_name is None and secondary_id is None:
+            # a single item is going to be updated(/replaced) with the
+            # provided JSON data
+            selected_item = primary_model.nodes.get_or_none(
+                **{primary_selection_field: str(escape(primary_id))})
+
+            if selected_item:
                 # parse input data (validate or not!)
                 if primary_model.__validation_rules__:
+                    # noinspection PyBroadException
                     try:
                         json_data = parser.parse(
                             primary_model.__validation_rules__, request)
@@ -98,41 +102,47 @@ def post(self, request, primary_id=None, secondary_model_name=None, secondary_id
                     raise HTTPException(
                         "A property is invalid, missing or misspelled!", 409)
 
-                item = primary_model.nodes.get_or_none(**json_data)
-
-                if not item:
+                if json_data:
                     with db.transaction:
-                        item = primary_model(**json_data).save()
-                        item.refresh()
-                    return serialize({primary_selection_field:
-                                        getattr(item, primary_selection_field)})
+                        # delete and create a new one
+                        selected_item.delete()  # delete old node and its relations
+                        created_item = primary_model(
+                            **json_data).save()  # create a new node
+
+                        if created_item:
+                            # if (self.__model__ == Post and g.user):
+                            #     created_item.creator.connect(g.user)
+                            #     created_item.save()
+                            created_item.refresh()
+                            return serialize({primary_selection_field:
+                                                getattr(created_item, primary_selection_field)})
+                        else:
+                            raise HTTPException(
+                                "There was an error creating your desired item.", 500)
                 else:
                     raise HTTPException(
-                        primary_model.__name__ + " exists!", 409)
-            except UniqueProperty:
+                        "Invalid information provided.", 404)
+            else:
                 raise HTTPException(
-                    "Provided properties are not unique!", 409)
+                    primary_model.__name__ + " does not exist.", 404)
+        else:
+            if primary_id and secondary_model_name and secondary_id:
+                # user either wants to update a relation or
+                # has provided invalid information
+                primary_selected_item = primary_model.nodes.get_or_none(
+                    **{primary_selection_field: str(escape(primary_id))})
 
-        if primary_id and secondary_model and secondary_id:
-            # user either wants to update a relation or
-            # has provided invalid information
-            primary_selected_item = primary_model.nodes.get_or_none(
-                **{primary_selection_field: str(escape(primary_id))})
+                secondary_selected_item = secondary_model.nodes.get_or_none(
+                    **{secondary_selection_field: str(escape(secondary_id))})
 
-            secondary_selected_item = secondary_model.nodes.get_or_none(
-                **{secondary_selection_field: str(escape(secondary_id))})
+                if primary_selected_item and secondary_selected_item:
+                    if hasattr(primary_selected_item, secondary_model_name):
 
-            if primary_selected_item and secondary_selected_item:
-                if hasattr(primary_selected_item, secondary_model_name):
+                        relation = getattr(
+                            primary_selected_item, secondary_model_name)
 
-                    relation = getattr(
-                        primary_selected_item, secondary_model_name)
+                        all_relations = relation.all()
 
-                    related_item = secondary_selected_item in relation.all()
-
-                    if related_item:
-                        raise HTTPException("Relation exists!", 409)
-                    else:
                         # parse input data as relation's (validate or not!)
                         if (relation.definition["model"] is not None):
                             if (relation.definition["model"].__validation_rules__):
@@ -149,6 +159,11 @@ def post(self, request, primary_id=None, secondary_model_name=None, secondary_id
                             json_data = {}
 
                         with db.transaction:
+                            # remove all relationships
+                            for each_relation in all_relations:
+                                relation.disconnect(each_relation)
+
+                            # add a new relationship with data
                             if (json_data == {}):
                                 related_item = relation.connect(
                                     secondary_selected_item)
@@ -161,18 +176,15 @@ def post(self, request, primary_id=None, secondary_model_name=None, secondary_id
                         else:
                             raise HTTPException("Selected " + secondary_model.__name__.lower(
                             ) + " does not exist or the provided information is invalid.", 404)
+                    else:
+                        raise HTTPException("Selected " + secondary_model.__name__.lower(
+                        ) + " does not exist or the provided information is invalid.", 404)
                 else:
-                    raise HTTPException("Selected " + secondary_model.__name__.lower(
-                    ) + " does not exist or the provided information is invalid.", 404)
-            else:
-                raise HTTPException("Selected " + primary_model.__name__.lower(
-                ) + " does not exist or the provided information is invalid.", 404)
+                    raise HTTPException(
+                        "One of the selected models does not exist or the provided information is invalid.", 404)
 
-        raise HTTPException("Invalid information provided.", 404)
+            raise HTTPException("Invalid information provided.", 404)
     except DoesNotExist as e:
         self.__log.exception(e)
         raise HTTPException(
             "The requested item or relation does not exist.", 404)
-    except RequiredProperty as e:
-        self.__log.exception(e)
-        raise HTTPException("A required property is missing.", 500)
