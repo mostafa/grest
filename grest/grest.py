@@ -28,7 +28,7 @@ try:
     # For Python 3.0 and later
     os.environ["PYTHONIOENCODING"] = "utf-8"
 except ImportError:
-    # Fall back to Python 2's urllib2
+    # Fall back for Python 2
     sys.setdefaultencoding("utf-8")  # FIXME: a better way should be found! 
 
 from flask import request
