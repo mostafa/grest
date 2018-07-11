@@ -18,6 +18,7 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
 class HTTPException(Exception):
 
     """

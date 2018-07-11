@@ -21,12 +21,12 @@
 import logging
 import os
 
-from flask import Flask
 import neomodel
-from neomodel import StructuredNode, StringProperty, UniqueIdProperty
+from flask import Flask
+from neomodel import StringProperty, StructuredNode, UniqueIdProperty
 from webargs import fields
 
-from grest import GRest, utils, models, global_config
+from grest import GRest, global_config, models, utils
 
 
 # noinspection PyAbstractClass

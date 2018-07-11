@@ -24,8 +24,8 @@ except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import unquote
 
-from markupsafe import escape_silent as escape
 from inflection import pluralize
+from markupsafe import escape_silent as escape
 from neomodel.exception import DoesNotExist
 
 from grest.exceptions import HTTPException

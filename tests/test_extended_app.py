@@ -20,10 +20,10 @@
 
 import json
 import xml.etree.ElementTree as ET
+
 import pytest
 import yaml
 from examples.extended_app import create_app
-
 
 uid = ""
 pet_id = ""

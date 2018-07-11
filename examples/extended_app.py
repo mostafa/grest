@@ -18,18 +18,20 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from flask import Flask, jsonify
-from flask_classful import route
-import markupsafe
-import neomodel
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      UniqueIdProperty, RelationshipFrom, RelationshipTo,
-                      StructuredRel)
-from webargs import fields
-from grest import GRest, utils, models, global_config
 import logging
 import logging.handlers
 import os
+
+import markupsafe
+import neomodel
+from flask import Flask, jsonify
+from flask_classful import route
+from neomodel import (IntegerProperty, RelationshipFrom, RelationshipTo,
+                      StringProperty, StructuredNode, StructuredRel,
+                      UniqueIdProperty)
+from webargs import fields
+
+from grest import GRest, global_config, models, utils
 
 
 class PetInfo(StructuredRel, models.Relation):

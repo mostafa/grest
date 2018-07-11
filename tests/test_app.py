@@ -18,11 +18,11 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from flask import url_for
 import json
+
 import pytest
 from examples.app import create_app
-
+from flask import url_for
 
 uid = ""
 

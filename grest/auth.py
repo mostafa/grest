@@ -19,7 +19,9 @@
 #
 
 from functools import wraps
+
 from flask import current_app as app
+
 from .exceptions import HTTPException
 from .utils import serialize
 

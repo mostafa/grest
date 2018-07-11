@@ -19,9 +19,9 @@
 #
 
 import re
-from os.path import join, dirname
-from setuptools import setup
+from os.path import dirname, join
 
+from setuptools import setup
 
 # Reading package version (the same way the sqlalchemy does)
 with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:

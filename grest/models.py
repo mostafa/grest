@@ -18,11 +18,11 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from neomodel import (ArrayProperty, BooleanProperty, DateProperty,
+                      DateTimeProperty, EmailProperty, IntegerProperty,
+                      JSONProperty, Property, StringProperty, UniqueIdProperty,
+                      relationship_manager)
 from webargs import fields
-from neomodel import (relationship_manager, Property, StringProperty,
-                      DateTimeProperty, DateProperty, EmailProperty,
-                      BooleanProperty, ArrayProperty, IntegerProperty,
-                      UniqueIdProperty, JSONProperty)
 
 
 class NodeAndRelationHelper(object):

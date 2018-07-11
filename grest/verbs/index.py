@@ -17,10 +17,10 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from webargs import fields
-from markupsafe import escape_silent as escape
 from inflection import pluralize
+from markupsafe import escape_silent as escape
 from neomodel.exception import DoesNotExist
+from webargs import fields
 
 from grest.exceptions import HTTPException
 from grest.global_config import QUERY_LIMIT

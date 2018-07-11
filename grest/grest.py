@@ -19,9 +19,24 @@
 #
 
 from __future__ import unicode_literals
+
+import imp
 import os
 import sys
-import imp
+
+from autologging import logged
+from flask import request
+from flask_classful import FlaskView, route
+from neomodel import StructuredNode
+
+from .auth import authenticate, authorize
+from .verbs.delete import delete
+from .verbs.get import get
+from .verbs.index import index
+from .verbs.patch import patch
+from .verbs.post import post
+from .verbs.put import put
+
 imp.reload(sys)
 
 try:
@@ -29,20 +44,7 @@ try:
     os.environ["PYTHONIOENCODING"] = "utf-8"
 except ImportError:
     # Fall back for Python 2
-    sys.setdefaultencoding("utf-8")  # FIXME: a better way should be found! 
-
-from flask import request
-from flask_classful import FlaskView, route
-from autologging import logged
-from neomodel import StructuredNode
-
-from .auth import authenticate, authorize
-from .verbs.index import index
-from .verbs.get import get
-from .verbs.post import post
-from .verbs.put import put
-from .verbs.patch import patch
-from .verbs.delete import delete
+    sys.setdefaultencoding("utf-8")  # FIXME: a better way should be found!
 
 
 @logged
