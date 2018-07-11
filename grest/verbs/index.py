@@ -18,14 +18,13 @@
 #
 
 from webargs import fields
-from webargs.flaskparser import parser
 from markupsafe import escape_silent as escape
 from inflection import pluralize
 from neomodel.exception import DoesNotExist
 
 from grest.exceptions import HTTPException
 from grest.global_config import QUERY_LIMIT
-from grest.utils import serialize
+from grest.utils import serialize, validate_input
 
 
 def index(self, request):
@@ -35,52 +34,44 @@ def index(self, request):
     :type: request
     :param skip: skips the specified amount of nodes (offset/start)
     :type: int
-    :param limit: number of nodes to return (shouldn't be more than total nodes)
+    :param limit: number of nodes to return (no more than total nodes/items)
     :type: int
     """
     try:
         # patch __log
         self.__log = self._GRest__log
 
-        primary_model = self.__model__.get("primary")
         __validation_rules__ = {
-            "skip": fields.Int(required=False, validate=lambda s: s >= 0, missing=0),
-            "limit": fields.Int(required=False, validate=lambda l: l >= 1 and l <= 100),
-            "order_by": fields.Str(required=False, missing="?")
+            "skip": fields.Int(required=False,
+                               validate=lambda skip: skip >= 0,
+                               missing=0),
+
+            "limit": fields.Int(required=False,
+                                validate=lambda lim: lim >= 1 and lim <= 100,
+                                missing=QUERY_LIMIT),
+
+            "order_by": fields.Str(required=False,
+                                   missing="?")
         }
 
-        # parse input data (validate or not!)
-        # noinspection PyBroadException
-        try:
-            query_data = parser.parse(__validation_rules__, request)
-        except:
-            self.__log.debug("Validation failed!")
-            raise HTTPException(
-                "One or more of the required fields is missing or incorrect.", 422)
+        primary_model = self.__model__.get("primary")
 
-        start = query_data.get("skip")
-        if start:
-            start = int(start)
-
-        count = query_data.get("limit")
-        if count:
-            count = start + int(count)
-        else:
-            count = start + QUERY_LIMIT
-
-        all_properties = [prop
-                            for prop in primary_model.defined_properties().keys()]
-
-        order_by = str(escape(
-            query_data.get("order_by"))) or "?"
+        query_data = validate_input(__validation_rules__, request)
+        skip = query_data.get("skip")
+        limit = query_data.get("skip") + query_data.get("limit")
+        order_by = escape(query_data.get("order_by"))
 
         if order_by:
             if order_by.startswith("-"):
+                # select property for descending ordering
                 order_by_prop = order_by[1:]
             else:
+                # select property for ascending ordering
                 order_by_prop = order_by
 
-            if order_by_prop not in all_properties and order_by_prop != "?":
+            primary_model_props = primary_model.defined_properties().keys()
+            if all([order_by_prop not in primary_model_props,
+                    order_by_prop != "?"]):
                 raise HTTPException(
                     "Selected property for ordering is invalid.", 404)
 
@@ -90,15 +81,17 @@ def index(self, request):
             raise HTTPException(
                 "No " + primary_model.__name__.lower() + " exists.", 404)
 
-        if start > total_items:
+        if skip > total_items:
             raise HTTPException(
                 "One or more of the required fields is incorrect.", 422)
 
-        page = primary_model.nodes.order_by(order_by)[start:count]
+        items = primary_model.nodes.order_by(order_by)[skip:limit]
 
-        if page:
-            return serialize({pluralize(primary_model.__name__.lower()):
-                                [item.to_dict() for item in page]})
+        if items:
+            primary_model_name = pluralize(primary_model.__name__.lower())
+
+            return serialize({primary_model_name:
+                              [item.to_dict() for item in items]})
         else:
             raise HTTPException(
                 "No " + primary_model.__name__.lower() + " exists.", 404)

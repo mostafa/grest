@@ -20,12 +20,16 @@
 
 import json
 
-from flask import request, jsonify, current_app as app
+import dicttoxml
 import markupsafe
 import requests
 import yaml
-import dicttoxml
+from flask import current_app as app
+from flask import jsonify, request
+from webargs.flaskparser import parser
+
 from . import global_config
+from .exceptions import HTTPException
 
 
 def make_request(url, json_data=None, method="post", headers=None):
@@ -71,3 +75,15 @@ def serialize(data):
             return jsonify(data)
     except Exception:
         return jsonify(errors=["Serialization exception!"]), 500
+
+
+def validate_input(validation_rules, request):
+    # parse input data (validate or not!)
+    # noinspection PyBroadException
+    try:
+        query_data = parser.parse(validation_rules, request)
+    except:
+        raise HTTPException(
+            "One or more of the required fields is missing or incorrect.", 422)
+
+    return query_data
