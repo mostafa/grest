@@ -28,6 +28,7 @@ from flask import current_app as app
 from flask import jsonify, request
 from webargs.flaskparser import parser
 
+import .messages as msg
 from . import global_config
 from .exceptions import HTTPException
 
@@ -74,7 +75,7 @@ def serialize(data):
             # return json if content-type is not set
             return jsonify(data)
     except Exception:
-        return jsonify(errors=["Serialization exception!"]), 500
+        return jsonify(errors=[msg.SERIALIZATION_EXCEPTION]), 500
 
 
 def validate_input(validation_rules, request):
@@ -83,7 +84,6 @@ def validate_input(validation_rules, request):
     try:
         query_data = parser.parse(validation_rules, request)
     except:
-        raise HTTPException(
-            "One or more of the required fields is missing or incorrect.", 422)
+        raise HTTPException(msg.VALIDATION_FAILED, 422)
 
     return query_data
