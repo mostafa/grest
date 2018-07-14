@@ -24,10 +24,11 @@ except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import unquote
 
-from inflection import pluralize
+from inflection import pluralize, singularize
 from markupsafe import escape_silent as escape
 from neomodel.exception import DoesNotExist
 
+import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.utils import serialize
 
@@ -35,11 +36,11 @@ from grest.utils import serialize
 def get(self, primary_id, secondary_model_name=None, secondary_id=None):
     """
     Returns an specified node or its related node
-    :param primary_id: unique id of the primary (source) node (model)
+    :param primary_id: unique id of the primary (src) node (model)
     :type: str
-    :param secondary_model_name: name of the secondary (destination) node (model)
+    :param secondary_model_name: name of the secondary (dest) node (model)
     :type: str
-    :param secondary_id: unique id of the secondary (destination) node (model)
+    :param secondary_id: unique id of the secondary (dest) node (model)
     :type: str
 
     The equivalent cypher query would be (as an example):
@@ -51,11 +52,11 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
         # patch __log
         self.__log = self._GRest__log
 
-        primary_id = unquote(primary_id)
+        primary_id = escape(unquote(primary_id))
         if (secondary_model_name):
-            secondary_model_name = unquote(secondary_model_name)
+            secondary_model_name = escape(unquote(secondary_model_name))
         if (secondary_id):
-            secondary_id = unquote(secondary_id)
+            secondary_id = escape(unquote(secondary_id))
 
         primary_model = self.__model__.get("primary")
         primary_selection_field = self.__selection_field__.get("primary")
@@ -71,91 +72,48 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
             secondary_selection_field = secondary_selection_fields.get(
                 secondary_model_name)
 
-        if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-            raise HTTPException("Selected relation does not exist.", 404)
+        if all([secondary_model_name is not None,
+                secondary_model is None]):
+            raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
 
-        if primary_id:
-            if secondary_model:
-                if secondary_id:
-                    # user selected a nested model with 2 keys (from the primary and the secondary models)
-                    # /users/user_id/roles/role_id -> selected role of this user
-                    # /categories/cat_id/tags/tag_id -> selected tag of this category
-                    primary_selected_item = primary_model.nodes.get_or_none(
-                        **{primary_selection_field: str(escape(primary_id))})
-                    if primary_selected_item:
-                        if hasattr(primary_selected_item, secondary_model_name):
-                            related_item = getattr(
-                                primary_selected_item, secondary_model_name).get(
-                                **{secondary_selection_field: str(escape(secondary_id))})
+        primary_selected_item = primary_model.nodes.get_or_none(
+            **{primary_selection_field: primary_id})
 
-                            relationship = getattr(
-                                primary_selected_item, secondary_model_name).relationship(related_item)
+        if all([primary_selected_item, secondary_model, secondary_id]):
+            # user selected a nested model with 2 keys
+            # (from the primary and secondary models)
+            # /users/user_id/roles/role_id -> selected role of this user
+            # /categories/cat_id/tags/tag_id -> selected tag of this category
 
-                            relation = getattr(
-                                primary_model, secondary_model_name)
+            # In this example, the p variable of type Post
+            # is the secondary_item
+            # (u:User)-[:POSTED]-(p:Post)
+            secondary_item = primary_selected_item.get_all(
+                secondary_model_name,
+                secondary_selection_field,
+                secondary_id,
+                retrieve_relations=True)
 
-                            if related_item:
-                                relation_data = related_item.to_dict()
-                                if (relation.definition["model"] is not None):
-                                    relation_data.update(
-                                        {"relationship": relationship.to_dict()})
-                                return serialize({secondary_model.__name__.lower():
-                                                    relation_data})
-                            else:
-                                raise HTTPException("Selected " + secondary_model.__name__.lower(
-                                ) + " does not exist or the provided information is invalid.", 404)
-                        else:
-                            raise HTTPException("Selected " + secondary_model.__name__.lower(
-                            ) + " does not exist or the provided information is invalid.", 404)
-                    else:
-                        raise HTTPException("Selected " + primary_model.__name__.lower(
-                        ) + " does not exist or the provided information is invalid.", 404)
-                else:
-                    # user selected a nested model with primary key (from the primary and the secondary models)
-                    # /users/user_1/roles -> all roles for this user
-                    primary_selected_item = primary_model.nodes.get_or_none(
-                        **{primary_selection_field: str(escape(primary_id))})
-                    if primary_selected_item:
-                        if hasattr(primary_selected_item, secondary_model_name):
-                            related_items = getattr(
-                                primary_selected_item, secondary_model_name).all()
-
-                            if related_items:
-                                relationships = []
-                                for item in related_items:
-                                    item_info = item.to_dict()
-                                    relation = getattr(
-                                        primary_model, secondary_model_name)
-                                    if (relation.definition["model"] is not None):
-                                        item_info["relationship"] = item.to_dict(
-                                        )
-                                    relationships.append(item_info)
-
-                                return serialize({pluralize(secondary_model.__name__.lower()):
-                                                    relationships})
-                            else:
-                                raise HTTPException("Selected " + secondary_model.__name__.lower(
-                                ) + " does not exist or the provided information is invalid.", 404)
-                        else:
-                            raise HTTPException("Selected " + secondary_model.__name__.lower(
-                            ) + " does not exist or the provided information is invalid.", 404)
-                    else:
-                        raise HTTPException("Selected " + primary_model.__name__.lower(
-                        ) + " does not exist or the provided information is invalid.", 404)
-            else:
-                # user selected a single item (from the primary model)
-                selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(escape(primary_id))})
-
-                if selected_item:
-                    return serialize({primary_model.__name__.lower(): selected_item.to_dict()})
-                else:
-                    raise HTTPException("Selected " + primary_model.__name__.lower(
-                    ) + " does not exist or the provided information is invalid.", 404)
+            return serialize({singularize(secondary_model_name):
+                              secondary_item})
+        elif all([primary_selected_item, secondary_model]):
+            # user selected a nested model with primary key
+            # (from the primary and the secondary models)
+            # /users/user_1/roles -> all roles for this user
+            relationships = primary_selected_item.get_all(
+                secondary_model_name,
+                retrieve_relations=True)
+            return serialize({pluralize(secondary_model_name):
+                              relationships})
         else:
-            raise HTTPException(primary_model.__name__ +
-                                " id is not provided or is invalid.", 404)
-    except DoesNotExist as e:
+            # user selected a single item (from the primary model)
+            if primary_selected_item:
+                return serialize({primary_model.__name__.lower():
+                                  primary_selected_item.to_dict()})
+            else:
+                primary_model_name = primary_model.__name__.lower()
+                raise HTTPException(msg.MODEL_DOES_NOT_EXIST.format(
+                    model=primary_model_name), 404)
+    except (DoesNotExist, AttributeError) as e:
         self.__log.exception(e)
-        raise HTTPException(
-            "The requested item or relation does not exist.", 404)
+        raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

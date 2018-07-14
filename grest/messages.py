@@ -1,0 +1,6 @@
+RELATION_DOES_NOT_EXIST = "Selected relation does not exist."
+MODEL_DOES_NOT_EXIST = "Selected {model} does not exist."
+ITEM_DOES_NOT_EXIST = "The requested item or relation does not exist."
+INVALID_ORDER_PROPERTY = "Selected property for ordering is invalid."
+NO_ITEM_EXISTS = "No {model} exists."
+VALIDATION_FAILED = "One or more of the required fields is incorrect."

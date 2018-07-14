@@ -44,7 +44,7 @@ def test_api_get(client):
     res = client.get("/v1/persons/6054ae614f674627b6eea6542f4d8e29")
     assert res.status_code == 404
     assert res.json == {"errors": [
-        "Selected person does not exist or the provided information is invalid."]}
+        "Selected person does not exist."]}
 
 
 def test_api_post(client):
