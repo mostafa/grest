@@ -25,7 +25,8 @@ from webargs import fields
 import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.global_config import QUERY_LIMIT
-from grest.utils import serialize, validate_input
+from grest.utils import serialize
+from grest.validation import validate_input, validate_query_string
 
 
 def index(self, request):
@@ -55,8 +56,7 @@ def index(self, request):
                                    missing="?")
         }
 
-        primary_model = self.__model__.get("primary")
-        primary_model_name = primary_model.__name__.lower()
+        validate_query_string()
 
         query_data = validate_input(__validation_rules__, request)
         skip = query_data.get("skip")
@@ -71,29 +71,28 @@ def index(self, request):
                 # select property for ascending ordering
                 order_by_prop = order_by
 
-            primary_model_props = primary_model.defined_properties().keys()
+            primary_model_props = self.primary_model.defined_properties().keys()
             if all([order_by_prop not in primary_model_props,
                     order_by_prop != "?"]):
                 raise HTTPException(msg.INVALID_ORDER_PROPERTY, 404)
 
-        total_items = len(primary_model.nodes)
+        total_items = len(self.primary_model.nodes)
 
         if total_items <= 0:
             raise HTTPException(msg.NO_ITEM_EXISTS.format(
-                model=primary_model_name), 404)
+                model=self.primary_model_name), 404)
 
         if skip > total_items:
             raise HTTPException(msg.VALIDATION_FAILED, 422)
 
-        items = primary_model.nodes.order_by(order_by)[skip:limit]
+        items = self.primary_model.nodes.order_by(order_by)[skip:limit]
 
-        primary_model_name = primary_model.__name__.lower()
         if items:
-            return serialize({pluralize(primary_model_name):
+            return serialize({pluralize(self.primary_model_name):
                               [item.to_dict() for item in items]})
         else:
             raise HTTPException(msg.NO_ITEM_EXISTS.format(
-                model=primary_model_name), 404)
+                model=self.primary_model_name), 404)
     except DoesNotExist as e:
         self.__log.exception(e)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

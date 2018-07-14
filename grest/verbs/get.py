@@ -31,6 +31,7 @@ from neomodel.exception import DoesNotExist
 import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.utils import serialize
+from grest.validation import validate_models
 
 
 def get(self, primary_id, secondary_model_name=None, secondary_id=None):
@@ -52,34 +53,17 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
         # patch __log
         self.__log = self._GRest__log
 
-        primary_id = escape(unquote(primary_id))
-        if (secondary_model_name):
-            secondary_model_name = escape(unquote(secondary_model_name))
-        if (secondary_id):
-            secondary_id = escape(unquote(secondary_id))
+        validate_models(self,
+                        primary_id,
+                        secondary_model_name,
+                        secondary_id)
 
-        primary_model = self.__model__.get("primary")
-        primary_selection_field = self.__selection_field__.get("primary")
-        secondary_model = secondary_selection_field = None
+        primary_selected_item = self.primary_model.nodes.get_or_none(
+            **{self.primary_selection_field: primary_id})
 
-        if "secondary" in self.__model__:
-            secondary_model = self.__model__.get(
-                "secondary").get(secondary_model_name)
-
-        if "secondary" in self.__selection_field__:
-            secondary_selection_fields = self.__selection_field__.get(
-                "secondary")
-            secondary_selection_field = secondary_selection_fields.get(
-                secondary_model_name)
-
-        if all([secondary_model_name is not None,
-                secondary_model is None]):
-            raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
-
-        primary_selected_item = primary_model.nodes.get_or_none(
-            **{primary_selection_field: primary_id})
-
-        if all([primary_selected_item, secondary_model, secondary_id]):
+        if all([self.primary_selected_item,
+                self.secondary_model,
+                self.secondary_id]):
             # user selected a nested model with 2 keys
             # (from the primary and secondary models)
             # /users/user_id/roles/role_id -> selected role of this user
@@ -88,32 +72,31 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
             # In this example, the p variable of type Post
             # is the secondary_item
             # (u:User)-[:POSTED]-(p:Post)
-            secondary_item = primary_selected_item.get_all(
-                secondary_model_name,
-                secondary_selection_field,
-                secondary_id,
+            secondary_item = self.primary_selected_item.get_all(
+                self.secondary_model_name,
+                self.secondary_selection_field,
+                self.secondary_id,
                 retrieve_relations=True)
 
-            return serialize({singularize(secondary_model_name):
+            return serialize({singularize(self.secondary_model_name):
                               secondary_item})
-        elif all([primary_selected_item, secondary_model]):
+        elif all([self.primary_selected_item, self.secondary_model]):
             # user selected a nested model with primary key
             # (from the primary and the secondary models)
             # /users/user_1/roles -> all roles for this user
-            relationships = primary_selected_item.get_all(
-                secondary_model_name,
+            relationships = self.primary_selected_item.get_all(
+                self.secondary_model_name,
                 retrieve_relations=True)
-            return serialize({pluralize(secondary_model_name):
+            return serialize({pluralize(self.secondary_model_name):
                               relationships})
         else:
             # user selected a single item (from the primary model)
-            if primary_selected_item:
-                return serialize({primary_model.__name__.lower():
+            if self.primary_selected_item:
+                return serialize({self.primary_model_name:
                                   primary_selected_item.to_dict()})
             else:
-                primary_model_name = primary_model.__name__.lower()
                 raise HTTPException(msg.MODEL_DOES_NOT_EXIST.format(
-                    model=primary_model_name), 404)
+                    model=self.primary_model_name), 404)
     except (DoesNotExist, AttributeError) as e:
         self.__log.exception(e)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

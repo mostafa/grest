@@ -26,7 +26,6 @@ import requests
 import yaml
 from flask import current_app as app
 from flask import jsonify, request
-from webargs.flaskparser import parser
 
 import .messages as msg
 from . import global_config
@@ -76,14 +75,3 @@ def serialize(data):
             return jsonify(data)
     except Exception:
         return jsonify(errors=[msg.SERIALIZATION_EXCEPTION]), 500
-
-
-def validate_input(validation_rules, request):
-    # parse input data (validate or not!)
-    # noinspection PyBroadException
-    try:
-        query_data = parser.parse(validation_rules, request)
-    except:
-        raise HTTPException(msg.VALIDATION_FAILED, 422)
-
-    return query_data
