@@ -17,6 +17,8 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
+
 try:
     # For Python 3.0 and later
     from urllib.request import unquote
@@ -24,18 +26,23 @@ except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import unquote
 
-from markupsafe import escape_silent as escape
 from neomodel import db
 from neomodel.exception import DoesNotExist, RequiredProperty, UniqueProperty
-from webargs.flaskparser import parser
 
+import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.utils import serialize
+from grest.validation import validate_input, validate_models
 
 
-def post(self, request, primary_id=None, secondary_model_name=None, secondary_id=None):
+def post(self,
+         request,
+         primary_id=None,
+         secondary_model_name=None,
+         secondary_id=None):
     """
-    Updates an specified node or its relation (creates relation, if none exists)
+    Updates an specified node or its relation
+    (creates relation, if none exists)
     :param request: Flask's current request object (passed from gREST)
     :type: request
     :param primary_id: unique id of the primary (source) node (model)
@@ -49,127 +56,93 @@ def post(self, request, primary_id=None, secondary_model_name=None, secondary_id
         # patch __log
         self.__log = self._GRest__log
 
-        if (primary_id):
-            primary_id = unquote(primary_id)
-        if (secondary_model_name):
-            secondary_model_name = unquote(secondary_model_name)
-        if (secondary_id):
-            secondary_id = unquote(secondary_id)
+        (primary, secondary) = validate_models(self,
+                                               primary_id,
+                                               secondary_model_name,
+                                               secondary_id)
 
-        primary_model = self.__model__.get("primary")
-        primary_selection_field = self.__selection_field__.get("primary")
-        secondary_model = secondary_selection_field = None
+        primary_selected_item = None
+        if primary.id is not None:
+            primary_selected_item = primary.model.nodes.get_or_none(
+                **{primary.selection_field: primary.id})
 
-        # check if there exists a secondary model
-        if "secondary" in self.__model__:
-            secondary_model = self.__model__.get(
-                "secondary").get(secondary_model_name)
+        secondary_selected_item = None
+        if secondary.id is not None:
+            secondary_selected_item = secondary.model.nodes.get_or_none(
+                **{secondary.selection_field: secondary.id})
 
-        if "secondary" in self.__selection_field__:
-            secondary_selection_fields = self.__selection_field__.get(
-                "secondary")
-            secondary_selection_field = secondary_selection_fields.get(
-                secondary_model_name)
-
-        if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-            raise HTTPException("Selected relation does not exist.", 404)
-
-        if not (primary_id and secondary_model and secondary_id):
-            # user wants to add a new item
-            try:
-                # parse input data (validate or not!)
-                if primary_model.__validation_rules__:
-                    try:
-                        json_data = parser.parse(
-                            primary_model.__validation_rules__, request)
-                    except:
-                        self.__log.debug("Validation failed!")
-                        raise HTTPException(
-                            "One or more of the required fields is missing or incorrect.", 422)
-                else:
-                    json_data = request.get_json(silent=True)
-
-                if not json_data:
-                    # if a non-existent property is present or misspelled,
-                    # the json_data property is empty!
-                    raise HTTPException(
-                        "A property is invalid, missing or misspelled!", 409)
-
-                item = primary_model.nodes.get_or_none(**json_data)
-
-                if not item:
-                    with db.transaction:
-                        item = primary_model(**json_data).save()
-                        item.refresh()
-                    return serialize({primary_selection_field:
-                                        getattr(item, primary_selection_field)})
-                else:
-                    raise HTTPException(
-                        primary_model.__name__ + " exists!", 409)
-            except UniqueProperty:
-                raise HTTPException(
-                    "Provided properties are not unique!", 409)
-
-        if primary_id and secondary_model and secondary_id:
+        if all([primary_selected_item,
+                secondary_selected_item,
+                secondary.model,
+                secondary.id]):
             # user either wants to update a relation or
             # has provided invalid information
-            primary_selected_item = primary_model.nodes.get_or_none(
-                **{primary_selection_field: str(escape(primary_id))})
-
-            secondary_selected_item = secondary_model.nodes.get_or_none(
-                **{secondary_selection_field: str(escape(secondary_id))})
-
-            if primary_selected_item and secondary_selected_item:
-                if hasattr(primary_selected_item, secondary_model_name):
-
+            if hasattr(primary_selected_item, secondary.model_name):
+                relation_exists = primary_selected_item.relation_exists(
+                    secondary.model_name,
+                    secondary_selected_item)
+                if relation_exists:
+                    # There is an existing relation
+                    raise HTTPException(msg.RELATION_EXISTS, 409)
+                else:
+                    # Get relation between primary and secondary objects
                     relation = getattr(
-                        primary_selected_item, secondary_model_name)
+                        primary_selected_item,
+                        secondary.model_name)
 
-                    related_item = secondary_selected_item in relation.all()
-
-                    if related_item:
-                        raise HTTPException("Relation exists!", 409)
+                    # If there is a relation model between the two,
+                    # validate requests based on that
+                    relation_model = relation.definition["model"]
+                    if relation_model is not None:
+                        # TODO: find a way to validate relationships
+                        json_data = request.get_json(silent=True)
                     else:
-                        # parse input data as relation's (validate or not!)
-                        if (relation.definition["model"] is not None):
-                            if (relation.definition["model"].__validation_rules__):
-                                try:
-                                    json_data = parser.parse(
-                                        relation.definition["model"].__validation_rules__, request)
-                                except:
-                                    self.__log.debug("Validation failed!")
-                                    raise HTTPException(
-                                        "One or more of the required fields is missing or incorrect.", 422)
-                            else:
-                                json_data = request.get_json(silent=True)
-                        else:
-                            json_data = {}
+                        json_data = {}
 
-                        with db.transaction:
-                            if (json_data == {}):
-                                related_item = relation.connect(
-                                    secondary_selected_item)
-                            else:
-                                related_item = relation.connect(
-                                    secondary_selected_item, json_data)
+                    with db.transaction:
+                        if not json_data:
+                            related_item = relation.connect(
+                                secondary_selected_item)
+                        else:
+                            related_item = relation.connect(
+                                secondary_selected_item, json_data)
 
                         if related_item:
                             return serialize(dict(result="OK"))
                         else:
-                            raise HTTPException("Selected " + secondary_model.__name__.lower(
-                            ) + " does not exist or the provided information is invalid.", 404)
-                else:
-                    raise HTTPException("Selected " + secondary_model.__name__.lower(
-                    ) + " does not exist or the provided information is invalid.", 404)
-            else:
-                raise HTTPException("Selected " + primary_model.__name__.lower(
-                ) + " does not exist or the provided information is invalid.", 404)
+                            raise HTTPException(msg.RELATION_DOES_NOT_EXIST,
+                                                404)
+        elif all([primary_selected_item is None,
+                  secondary.model is None,
+                  secondary.id is None]):
+            new_item = primary.model()
 
-        raise HTTPException("Invalid information provided.", 404)
-    except DoesNotExist as e:
+            # parse input data (validate or not!)
+            json_data = validate_input(new_item.validation_rules,
+                                       request)
+
+            # user wants to add a new item (from the primary model)
+            new_item = primary.model.nodes.get_or_none(**json_data)
+
+            if not new_item:
+                with db.transaction:
+                    new_item = primary.model(**json_data).save()
+                    new_item.refresh()
+
+                return serialize({primary.selection_field:
+                                  getattr(new_item,
+                                          primary.selection_field)})
+            else:
+                raise HTTPException(msg.ITEM_EXISTS.format(
+                    item=primary.model_name), 409)
+        else:
+            raise HTTPException(msg.BAD_REQUEST, 400)
+    except (DoesNotExist, AttributeError) as e:
         self.__log.exception(e)
-        raise HTTPException(
-            "The requested item or relation does not exist.", 404)
+        raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
+    except UniqueProperty as e:
+        self.__log.exception(e)
+        raise HTTPException(msg.NON_UNIQUE_PROPERTIY, 409)
     except RequiredProperty as e:
         self.__log.exception(e)
-        raise HTTPException("A required property is missing.", 500)
+        raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)

@@ -17,6 +17,8 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
+
 try:
     # For Python 3.0 and later
     from urllib.request import unquote
@@ -53,17 +55,17 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
         # patch __log
         self.__log = self._GRest__log
 
-        validate_models(self,
-                        primary_id,
-                        secondary_model_name,
-                        secondary_id)
+        (primary, secondary) = validate_models(self,
+                                               primary_id,
+                                               secondary_model_name,
+                                               secondary_id)
 
-        primary_selected_item = self.primary_model.nodes.get_or_none(
-            **{self.primary_selection_field: primary_id})
+        primary_selected_item = primary.model.nodes.get_or_none(
+            **{primary.selection_field: primary.id})
 
-        if all([self.primary_selected_item,
-                self.secondary_model,
-                self.secondary_id]):
+        if all([primary_selected_item,
+                secondary.model,
+                secondary.id]):
             # user selected a nested model with 2 keys
             # (from the primary and secondary models)
             # /users/user_id/roles/role_id -> selected role of this user
@@ -72,31 +74,31 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
             # In this example, the p variable of type Post
             # is the secondary_item
             # (u:User)-[:POSTED]-(p:Post)
-            secondary_item = self.primary_selected_item.get_all(
-                self.secondary_model_name,
-                self.secondary_selection_field,
-                self.secondary_id,
+            secondary_item = primary_selected_item.get_all(
+                secondary.model_name,
+                secondary.selection_field,
+                secondary.id,
                 retrieve_relations=True)
 
-            return serialize({singularize(self.secondary_model_name):
+            return serialize({singularize(secondary.model_name):
                               secondary_item})
-        elif all([self.primary_selected_item, self.secondary_model]):
+        elif all([primary_selected_item, secondary.model]):
             # user selected a nested model with primary key
             # (from the primary and the secondary models)
             # /users/user_1/roles -> all roles for this user
-            relationships = self.primary_selected_item.get_all(
-                self.secondary_model_name,
+            relationships = primary_selected_item.get_all(
+                secondary.model_name,
                 retrieve_relations=True)
-            return serialize({pluralize(self.secondary_model_name):
+            return serialize({pluralize(secondary.model_name):
                               relationships})
         else:
             # user selected a single item (from the primary model)
-            if self.primary_selected_item:
-                return serialize({self.primary_model_name:
+            if primary_selected_item:
+                return serialize({primary.model_name:
                                   primary_selected_item.to_dict()})
             else:
                 raise HTTPException(msg.MODEL_DOES_NOT_EXIST.format(
-                    model=self.primary_model_name), 404)
+                    model=primary.model_name), 404)
     except (DoesNotExist, AttributeError) as e:
         self.__log.exception(e)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

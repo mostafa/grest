@@ -18,10 +18,20 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
+
+try:
+    # For Python 3.0 and later
+    from urllib.request import unquote
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import unquote
+
+from markupsafe import escape_silent as escape
 from webargs.flaskparser import parser
 
-import .messages as msg
-from .exceptions import HTTPException
+import grest.messages as msg
+from grest.exceptions import HTTPException
 
 
 def validate_input(validation_rules, request):
@@ -32,35 +42,58 @@ def validate_input(validation_rules, request):
     except:
         raise HTTPException(msg.VALIDATION_FAILED, 422)
 
+    if not query_data:
+        # if a non-existent property is present or misspelled,
+        # the json_data property is empty!
+        raise HTTPException(msg.INVALID_PROPERTIES, 409)
+
     return query_data
 
 
-# FIXME: *SELF* SHOULD NOT BE CHANGED!!!
 def validate_models(self,
                     primary_id=None,
                     secondary_model_name=None,
                     secondary_id=None):
-    primary_id = escape(unquote(primary_id))
-    if (secondary_model_name):
-        secondary_model_name = escape(unquote(secondary_model_name))
-    if (secondary_id):
-        secondary_id = escape(unquote(secondary_id))
 
-    self.primary_model = self.__model__.get("primary")
-    self.primary_model_name = self.primary_model.__name__.lower()
-    self.primary_selection_field = self.__selection_field__.get("primary")
-    self.secondary_model = self.secondary_selection_field = None
+    class Primary:
+        id = None
+        model = None
+        model_name = None
+        selection_field = None
 
-    if "secondary" in self.__model__:
-        self.secondary_model = self.__model__.get(
-            "secondary").get(secondary_model_name)
+    class Secondary:
+        id = None
+        model = None
+        model_name = None
+        selection_field = None
 
-    if "secondary" in self.__selection_field__:
-        secondary_selection_fields = self.__selection_field__.get(
-            "secondary")
-        self.secondary_selection_field = secondary_selection_fields.get(
-            secondary_model_name)
+    if primary_id:
+        Primary.id = escape(unquote(primary_id))
 
-    if all([self.secondary_model_name is not None,
-            self.secondary_model is None]):
-        raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
+    Primary.model = self.__model__.get("primary")
+    Primary.model_name = Primary.model.__name__.lower()
+    Primary.selection_field = self.__selection_field__.get("primary")
+
+    if secondary_model_name:
+        Secondary.model_name = escape(unquote(secondary_model_name))
+
+        if secondary_id:
+            Secondary.id = escape(unquote(secondary_id))
+
+        Secondary.model = Secondary.selection_field = None
+
+        if "secondary" in self.__model__:
+            Secondary.model = self.__model__.get(
+                "secondary").get(Secondary.model_name)
+
+        if "secondary" in self.__selection_field__:
+            Secondary.selection_fields = self.__selection_field__.get(
+                "secondary")
+            Secondary.selection_field = Secondary.selection_fields.get(
+                Secondary.model_name)
+
+        if all([Secondary.model_name is not None,
+                Secondary.model is None]):
+            raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
+
+    return (Primary, Secondary)

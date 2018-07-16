@@ -18,6 +18,8 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
+
 import json
 
 import dicttoxml
@@ -27,9 +29,8 @@ import yaml
 from flask import current_app as app
 from flask import jsonify, request
 
-import .messages as msg
-from . import global_config
-from .exceptions import HTTPException
+import grest.messages as msg
+import grest.global_config as global_config
 
 
 def make_request(url, json_data=None, method="post", headers=None):

@@ -240,7 +240,7 @@ def test_api_post_person_adopts_pet_error(client):
     global pet_id, uid
     res = client.post("/persons/" + uid + "/pets/" + pet_id)
     assert res.status_code == 409
-    assert res.json == {"errors": ["Relation exists!"]}
+    assert res.json == {"errors": ["Relation exists."]}
 
 
 def test_api_post_person_buys_nonexisting_car(client):

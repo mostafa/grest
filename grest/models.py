@@ -18,23 +18,18 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
+
 from collections import Iterable
-from inflection import pluralize
 from neomodel import (ArrayProperty, BooleanProperty, DateProperty,
                       DateTimeProperty, EmailProperty, IntegerProperty,
-                      JSONProperty, Property, StringProperty, UniqueIdProperty,
+                      JSONProperty, StringProperty, UniqueIdProperty,
                       relationship_manager)
 from webargs import fields
-
-from .utils import serialize
 
 
 class NodeAndRelationHelper(object):
     __validation_rules__ = {}
-
-    def __init__(self):
-        super(self.__class__, self)
-        self.__validation_rules__ = self.validation_rules
 
     def to_dict(self):
         name = 0
@@ -72,6 +67,63 @@ class NodeAndRelationHelper(object):
         result = {key: getattr(self, key) for key in properties}
 
         return result
+
+    def get_all(self,
+                secondary_model_name,
+                secondary_selection_field=None,
+                secondary_id=None,
+                retrieve_relations=False):
+        """
+        Get all relations and their associated relationship information
+        """
+        # Definition of a relationship between two nodes (class)
+        # neomodel.relationship_manager.RelationshipDefinition
+        relation_model = getattr(self.__class__, secondary_model_name)
+        # Actual relationship object between two nodes which is
+        # a submodule of neomodel.relationship_manager like:
+        # neomodel.relationship_manager.ZeroOrMore
+        relation_obj = getattr(self, secondary_model_name)
+
+        secondary_items = None
+        if all([secondary_selection_field, secondary_id]):
+            secondary_items = relation_obj.get(
+                    **{secondary_selection_field: secondary_id})
+        else:
+            secondary_items = relation_obj.all()
+
+        def get_item(item):
+            item_info = item.to_dict()
+            # Relationship object between two nodes (actual instance)
+            relationship = relation_obj.relationship(item)
+            relationship_info = relationship.to_dict()
+            if all([relation_model.definition["model"],
+                    relationship_info != {}]):
+                item_info.update({
+                    "relationship": relationship_info
+                })
+            return item_info
+
+        if secondary_items:
+            relationships = []
+            if isinstance(secondary_items, Iterable):
+                for item in secondary_items:
+                    item_info = get_item(item)
+                    relationships.append(item_info)
+            else:
+                item_info = get_item(secondary_items)
+                relationships = item_info
+
+            return relationships
+
+        return None
+
+    def relation_exists(self,
+                        secondary_model_name,
+                        secondary_selected_item):
+        if hasattr(self, secondary_model_name):
+            relation = getattr(self, secondary_model_name)
+            return secondary_selected_item in relation.all()
+        return False
 
     @property
     def validation_rules(self):
@@ -128,55 +180,6 @@ class NodeAndRelationHelper(object):
                             type(field[value])](required=field[value].required)
 
         return self.__validation_rules__
-
-    def get_all(self,
-                secondary_model_name,
-                secondary_selection_field=None,
-                secondary_id=None,
-                retrieve_relations=False):
-        """
-        Get all relations and their associated relationship information
-        """
-        # Definition of a relationship between two nodes (class)
-        # neomodel.relationship_manager.RelationshipDefinition
-        relation_model = getattr(self.__class__, secondary_model_name)
-        # Actual relationship object between two nodes which is
-        # a submodule of neomodel.relationship_manager like:
-        # neomodel.relationship_manager.ZeroOrMore
-        relation_obj = getattr(self, secondary_model_name)
-
-        secondary_items = None
-        if all([secondary_selection_field, secondary_id]):
-            secondary_items = relation_obj.get(
-                    **{secondary_selection_field: secondary_id})
-        else:
-            secondary_items = relation_obj.all()
-
-        def get_item(item):
-            item_info = item.to_dict()
-            # Relationship object between two nodes (actual instance)
-            relationship = relation_obj.relationship(item)
-            relationship_info = relationship.to_dict()
-            if all([relation_model.definition["model"],
-                    relationship_info != {}]):
-                item_info.update({
-                    "relationship": relationship_info
-                })
-            return item_info
-
-        if secondary_items:
-            relationships = []
-            if isinstance(secondary_items, Iterable):
-                for item in secondary_items:
-                    item_info = get_item(item)
-                    relationships.append(item_info)
-            else:
-                item_info = get_item(secondary_items)
-                relationships = item_info
-
-            return relationships
-
-        return None
 
 
 class Node(NodeAndRelationHelper):
