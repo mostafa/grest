@@ -93,11 +93,10 @@ def post(self,
                     # If there is a relation model between the two,
                     # validate requests based on that
                     relation_model = relation.definition["model"]
+                    json_data = {}
                     if relation_model is not None:
                         # TODO: find a way to validate relationships
                         json_data = request.get_json(silent=True)
-                    else:
-                        json_data = {}
 
                     with db.transaction:
                         if not json_data:
