@@ -20,43 +20,18 @@
 
 from __future__ import absolute_import
 
-import json
-
 import dicttoxml
-import markupsafe
-import requests
+from markupsafe import escape_silent as escape
 import yaml
-from flask import current_app as app
 from flask import jsonify, request
 
 import grest.messages as msg
 import grest.global_config as global_config
 
 
-def make_request(url, json_data=None, method="post", headers=None):
-    if (headers is None):
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
-
-    try:
-        func = getattr(requests, method)
-        if (json_data):
-            response = func(url, json=json_data, headers=headers)
-        else:
-            response = func(url, headers=headers)
-
-        if (response.content):
-            return json.loads(response.content)
-    except Exception as e:
-        app.ext_logger.exception(e)
-        return None
-
-
 def get_header(name):
     if (name in request.headers):
-        return request.headers.get(markupsafe.escape(name))
+        return request.headers.get(escape(name))
     else:
         return None
 
