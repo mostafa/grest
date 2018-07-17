@@ -17,6 +17,8 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
+
 try:
     # For Python 3.0 and later
     from urllib.request import unquote
@@ -24,67 +26,46 @@ except ImportError:
     # Fall back to Python 2's urllib2
     from urllib2 import unquote
 
-from markupsafe import escape_silent as escape
 from neomodel import db
 from neomodel.exception import DoesNotExist
-from webargs.flaskparser import parser
 
+import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.utils import serialize
+from grest.validation import validate_input, validate_models
 
 
 def patch(self, request, primary_id):
-    primary_id = unquote(primary_id)
-
     try:
         # patch __log
         self.__log = self._GRest__log
 
-        primary_model = self.__model__.get("primary")
-        primary_selection_field = self.__selection_field__.get("primary")
+        (primary, _) = validate_models(self, primary_id)
 
-        if primary_model.__validation_rules__:
-            # noinspection PyBroadException
-            try:
-                json_data = parser.parse(
-                    primary_model.__validation_rules__, request)
-            except:
-                self.__log.debug("Validation failed!")
-                raise HTTPException(
-                    "One or more of the required fields is missing or incorrect.", 422)
-        else:
-            json_data = request.get_json(silent=True)
+        primary_selected_item = None
+        if primary.id is not None:
+            primary_selected_item = primary.model.nodes.get_or_none(
+                **{primary.selection_field: primary.id})
 
-        if not json_data:
-            # if a non-existent property is present or misspelled,
-            # the json_data property is empty!
-            raise HTTPException(
-                "A property is invalid, missing or misspelled!", 409)
+        if primary_selected_item:
+            new_item = primary.model()
 
-        if primary_id:
-            selected_item = primary_model.nodes.get_or_none(
-                **{primary_selection_field: str(escape(primary_id))})
+            # parse input data (validate or not!)
+            json_data = validate_input(new_item.validation_rules,
+                                       request)
 
-            if selected_item:
-                if json_data:
-                    with db.transaction:
-                        selected_item.__dict__.update(json_data)
-                        updated_item = selected_item.save()
-                        selected_item.refresh()
+            updated_item = None
+            with db.transaction:
+                primary_selected_item.__dict__.update(json_data)
+                updated_item = primary_selected_item.save()
+                updated_item.refresh()
 
-                    if updated_item:
-                        return serialize(dict(result="OK"))
-                    else:
-                        raise HTTPException(
-                            "There was an error updating your desired item.", 500)
-                else:
-                    raise HTTPException(
-                        "Invalid information provided.", 404)
+            if updated_item:
+                return serialize(dict(result="OK"))
             else:
-                raise HTTPException("Item does not exist.", 404)
+                raise HTTPException(msg.UPDATE_FAILED, 500)
         else:
-            raise HTTPException(primary_model.__name__ +
-                                " id is not provided or is invalid.", 404)
+            raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except DoesNotExist as e:
         self.__log.exception(e)
         raise HTTPException(
