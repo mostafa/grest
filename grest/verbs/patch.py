@@ -34,13 +34,6 @@ from grest.utils import serialize
 
 
 def patch(self, request, primary_id):
-    """
-    Partially updates a node
-    :param primary_id: unique id of the primary (source) node (model)
-    :type: str
-
-    Note: updating relations via PATCH is not supported.
-    """
     primary_id = unquote(primary_id)
 
     try:

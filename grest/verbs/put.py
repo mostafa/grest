@@ -40,18 +40,6 @@ def put(self,
         primary_id,
         secondary_model_name=None,
         secondary_id=None):
-    """
-    Updates an specified node or its relation
-    (creates relation, if none exists)
-    :param request: Flask's current request object (passed from gREST)
-    :type: request
-    :param primary_id: unique id of the primary (source) node (model)
-    :type: str
-    :param secondary_model_name: name of the secondary (destination) node (model)
-    :type: str
-    :param secondary_id: unique id of the secondary (destination) node (model)
-    :type: str
-    """
     try:
         # patch __log
         self.__log = self._GRest__log

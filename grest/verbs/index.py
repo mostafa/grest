@@ -32,15 +32,6 @@ from grest.validation import validate_input, validate_models
 
 
 def index(self, request):
-    """
-    Returns an specified number of nodes, with pagination (skip/limit)
-    :param request: Flask's current request object (passed from gREST)
-    :type: request
-    :param skip: skips the specified amount of nodes (offset/start)
-    :type: int
-    :param limit: number of nodes to return (no more than total nodes/items)
-    :type: int
-    """
     try:
         # patch __log
         self.__log = self._GRest__log

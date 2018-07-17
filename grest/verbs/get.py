@@ -37,20 +37,6 @@ from grest.validation import validate_models
 
 
 def get(self, primary_id, secondary_model_name=None, secondary_id=None):
-    """
-    Returns an specified node or its related node
-    :param primary_id: unique id of the primary (src) node (model)
-    :type: str
-    :param secondary_model_name: name of the secondary (dest) node (model)
-    :type: str
-    :param secondary_id: unique id of the secondary (dest) node (model)
-    :type: str
-
-    The equivalent cypher query would be (as an example):
-    MATCH (u:User) WHERE n.user_id = "123456789" RETURN n
-    Or:
-    MATCH (u:User)-[LIKES]->(p:Post) WHERE n.user_id = "123456789" RETURN p
-    """
     try:
         # patch __log
         self.__log = self._GRest__log

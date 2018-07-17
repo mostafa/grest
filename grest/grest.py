@@ -88,6 +88,12 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def index(self):
+        """
+        Returns an specified number of nodes, with pagination (skip/limit)
+
+        skip [int] skips the specified amount of nodes (offset/start)
+        limit [int] number of nodes to return (no more than total nodes/items)
+        """
         return index(self, request)
 
     @route("/<primary_id>", methods=["GET"])
@@ -96,6 +102,17 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def get(self, primary_id, secondary_model_name=None, secondary_id=None):
+        """
+        Returns an specified node or its related node
+        primary_id [str] unique id of the primary (src) node (model)
+        secondary_model_name [str] name of the secondary (dest) node (model)
+        secondary_id [str] unique id of the secondary (dest) node (model)
+
+        The equivalent cypher query would be (as an example):
+        MATCH (u:User) WHERE n.user_id = "123456789" RETURN n
+        Or:
+        MATCH (u:User)-[LIKES]->(p:Post) WHERE n.user_id = "123456789" RETURN p
+        """
         return get(self, primary_id, secondary_model_name, secondary_id)
 
     @route("", methods=["POST"])
@@ -103,6 +120,13 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def post(self, primary_id=None, secondary_model_name=None, secondary_id=None):
+        """
+        Updates an specified node or its relation
+        (creates relation, if none exists)
+        primary_id [str] unique id of the primary (source) node (model)
+        secondary_model_name [str] name of the secondary (destination) node (model)
+        secondary_id [str] unique id of the secondary (destination) node (model)
+        """
         return post(self, request, primary_id, secondary_model_name, secondary_id)
 
     @route("/<primary_id>", methods=["PUT"])
@@ -110,12 +134,25 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def put(self, primary_id, secondary_model_name=None, secondary_id=None):
+        """
+        Updates an specified node or its relation
+        (delete old nodes and relations and creates new ones)
+        primary_id [str] unique id of the primary (source) node (model)
+        secondary_model_name [str] name of the secondary (destination) node (model)
+        secondary_id [str] unique id of the secondary (destination) node (model)
+        """
         return put(self, request, primary_id, secondary_model_name, secondary_id)
 
     @route("/<primary_id>", methods=["PATCH"])
     @authenticate
     @authorize
     def patch(self, primary_id):
+        """
+        Partially updates a node
+        primary_id [str] unique id of the primary (source) node (model)
+
+        [NOTE] updating relations via PATCH is not supported.
+        """
         return patch(self, request, primary_id)
 
     @route("/<primary_id>", methods=["DELETE"])
@@ -123,4 +160,10 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def delete(self, primary_id, secondary_model_name=None, secondary_id=None):
+        """
+        Deletes a node or its specific relation
+        primary_id [str] unique id of the primary (source) node (model)
+        secondary_model_name [str] name of the secondary (destination) node (model)
+        secondary_id [str] unique id of the secondary (destination) node (model)
+        """
         return delete(self, primary_id, secondary_model_name, secondary_id)
