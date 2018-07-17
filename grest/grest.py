@@ -166,4 +166,4 @@ class GRest(FlaskView):
         secondary_model_name [str] name of the secondary (destination) node (model)
         secondary_id [str] unique id of the secondary (destination) node (model)
         """
-        return delete(self, primary_id, secondary_model_name, secondary_id)
+        return delete(self, request, primary_id, secondary_model_name, secondary_id)

@@ -369,7 +369,7 @@ def test_api_delete_relation(client):
 
     # non-existing relation
     res = client.delete("/persons/" + uid + "/pets/" + pet_id)
-    assert res.status_code == 409
+    assert res.status_code == 404
     assert "errors" in res.json
 
 

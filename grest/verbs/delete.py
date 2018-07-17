@@ -32,86 +32,78 @@ from neomodel.exception import DoesNotExist, RequiredProperty, UniqueProperty
 import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.utils import serialize
-from grest.validation import validate_input, validate_models
+from grest.validation import validate_models
 
 
-def delete(self, primary_id, secondary_model_name=None, secondary_id=None):
+def delete(self,
+           request,
+           primary_id,
+           secondary_model_name=None,
+           secondary_id=None):
     try:
-        primary_id = unquote(primary_id)
-        if (secondary_model_name):
-            secondary_model_name = unquote(secondary_model_name)
-        if (secondary_id):
-            secondary_id = unquote(secondary_id)
+        # patch __log
+        self.__log = self._GRest__log
 
-        primary_model = self.__model__.get("primary")
-        primary_selection_field = self.__selection_field__.get("primary")
-        secondary_model = secondary_selection_field = None
+        (primary, secondary) = validate_models(self,
+                                               primary_id,
+                                               secondary_model_name,
+                                               secondary_id)
 
-        # check if there exists a secondary model
-        if "secondary" in self.__model__:
-            secondary_model = self.__model__.get(
-                "secondary").get(secondary_model_name)
+        primary_selected_item = None
+        if primary.id is not None:
+            primary_selected_item = primary.model.nodes.get_or_none(
+                **{primary.selection_field: primary.id})
 
-        if "secondary" in self.__selection_field__:
-            secondary_selection_fields = self.__selection_field__.get(
-                "secondary")
-            secondary_selection_field = secondary_selection_fields.get(
-                secondary_model_name)
+        secondary_selected_item = None
+        if secondary.id is not None:
+            secondary_selected_item = secondary.model.nodes.get_or_none(
+                **{secondary.selection_field: secondary.id})
 
-        if secondary_model_name is not None and secondary_model_name not in self.__model__.get("secondary"):
-            raise HTTPException("Selected relation does not exist.", 404)
-
-        if primary_id and secondary_model_name is None and secondary_id is None:
-            selected_item = primary_model.nodes.get_or_none(
-                **{primary_selection_field: str(escape(primary_id))})
-
-            if selected_item:
-                with db.transaction:
-                    if selected_item.delete():
-                        return serialize(dict(result="OK"))
-                    else:
-                        raise HTTPException(
-                            "There was an error deleting the item.", 500)
-            else:
-                raise HTTPException("Item does not exist.", 404)
-        else:
-            if primary_id and secondary_model_name and secondary_id:
-                # user either wants to update a relation or
-                # has provided invalid information
-                primary_selected_item = primary_model.nodes.get_or_none(
-                    **{primary_selection_field: str(escape(primary_id))})
-
-                secondary_selected_item = secondary_model.nodes.get_or_none(
-                    **{secondary_selection_field: str(escape(secondary_id))})
-
-                if primary_selected_item and secondary_selected_item:
-                    if hasattr(primary_selected_item, secondary_model_name):
-                        relation = getattr(
-                            primary_selected_item, secondary_model_name)
-                        related_item = secondary_selected_item in relation.all()
-
-                        if not related_item:
-                            raise HTTPException(
-                                "Relation does not exist!", 409)
-                        else:
-                            with db.transaction:
-                                relation.disconnect(
-                                    secondary_selected_item)
-
-                            if secondary_selected_item not in relation.all():
-                                return serialize(dict(result="OK"))
-                            else:
-                                raise HTTPException(
-                                    "There was an error removing the selected relation.", 500)
-                    else:
-                        raise HTTPException("Selected " + secondary_model.__name__.lower(
-                        ) + " does not exist or the provided information is invalid.", 404)
+        if all([primary_selected_item,
+                secondary_selected_item,
+                secondary.model,
+                secondary.id]):
+            # user either wants to update a relation or
+            # has provided invalid information
+            if hasattr(primary_selected_item, secondary.model_name):
+                relation_exists = primary_selected_item.relation_exists(
+                    secondary.model_name,
+                    secondary_selected_item)
+                if not relation_exists:
+                    # There is an no relation
+                    raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
                 else:
-                    raise HTTPException("Selected " + primary_model.__name__.lower(
-                    ) + " does not exist or the provided information is invalid.", 404)
-            raise HTTPException(primary_model.__name__ +
-                                " id is not provided or is invalid.", 404)
-    except DoesNotExist as e:
+                    # Get relation between primary and secondary objects
+                    relation = getattr(
+                        primary_selected_item,
+                        secondary.model_name)
+
+                    with db.transaction:
+                        # remove all relationships
+                        for each_relation in relation.all():
+                            relation.disconnect(each_relation)
+
+                        if secondary_selected_item not in relation.all():
+                            return serialize(dict(result="OK"))
+                        else:
+                            raise HTTPException(msg.DELETE_FAILED,
+                                                500)
+        elif all([primary_selected_item is not None,
+                  secondary.model is None,
+                  secondary.id is None]):
+            with db.transaction:
+                if primary_selected_item.delete():
+                    return serialize(dict(result="OK"))
+                else:
+                    raise HTTPException(msg.DELETE_FAILED, 500)
+        else:
+            raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
+    except (DoesNotExist, AttributeError) as e:
         self.__log.exception(e)
-        raise HTTPException(
-            "The requested item or relation does not exist.", 404)
+        raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
+    except UniqueProperty as e:
+        self.__log.exception(e)
+        raise HTTPException(msg.NON_UNIQUE_PROPERTIY, 409)
+    except RequiredProperty as e:
+        self.__log.exception(e)
+        raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)
