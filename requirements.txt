@@ -5,7 +5,7 @@ Flask_Classful==0.14.1
 inflection==0.3.1
 MarkupSafe==1.0
 neomodel==3.2.9
-pytest==3.7.1
+pytest==3.7.2
 pytest-flask==0.10.0
 requests==2.19.1
 setuptools==40.1.0
