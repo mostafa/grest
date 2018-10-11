@@ -1,4 +1,4 @@
-Autologging==1.2.0
+Autologging==1.2.1
 dicttoxml==1.7.4
 Flask==1.0.2
 Flask_Classful==0.14.1
