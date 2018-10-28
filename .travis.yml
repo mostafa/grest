@@ -3,8 +3,12 @@ sudo: yes
 dist: xenial
 group: edge
 
-jdk:
-  - openjdk8
+jdk: openjdk8
+
+addons:
+  apt:
+    packages:
+      - openjdk-8-jre
 
 env:
   matrix:
@@ -13,7 +17,10 @@ env:
     - NEO4J_VERSION="3.4.1"
 
 before_install:
-  # Switch to a lower version of JDK than the pre-installed one
+  # download and source jdk_switcher
+  # then switch to OpenJDK8
+  - wget https://raw.githubusercontent.com/michaelklishin/jdk_switcher/master/jdk_switcher.sh
+  - . ./jdk_switcher.sh
   - jdk_switcher use openjdk8
   # install Neo4j locally:
   - wget dist.neo4j.org/neo4j-community-$NEO4J_VERSION-unix.tar.gz
