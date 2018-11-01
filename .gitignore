@@ -91,6 +91,7 @@ venv27/
 .ropeproject
 
 register_package_pypi.bat
+register_package_pypi_py3.bat
 test.bat
 
 # jet brains
