@@ -23,6 +23,9 @@ from os.path import dirname, join
 
 from setuptools import setup
 
+# Extract requirements from requirements.txt
+REQUIREMENTS = [r.rstrip() for r in open("requirements.txt").readlines()]
+
 # Reading package version (the same way the sqlalchemy does)
 with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
   package_version = re.compile(
@@ -36,7 +39,8 @@ setup(name="pygrest",
       author="Mostafa Moradian",
       author_email="mostafamoradian0@gmail.com",
       license="GPLv3",
-      packages=["grest"],
+      include_package_data=True,
+      packages=["grest", "grest.verbs", "examples", "tests", "docs"],
       long_description="""
 gREST
 =====
@@ -47,18 +51,7 @@ purpose is to ease development of RESTful APIs with little effort and
 miminum amount of code.
 
 For more information, visit github page of `the project <https://github.com/mostafa/GRest>`_.""",
-      install_requires=[
-          "flask",
-          "flask_classful",
-          "neomodel",
-          "webargs",
-          "markupsafe",
-          "inflection",
-          "autologging",
-          "requests",
-          "pyaml",
-          "dicttoxml"
-      ],
+      install_requires=REQUIREMENTS,
       classifiers=[
           "Development Status :: 5 - Production/Stable",
           "Intended Audience :: Developers",
@@ -71,7 +64,6 @@ For more information, visit github page of `the project <https://github.com/most
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: 3.7"
       ],
-      # keywords='',
       setup_requires=['pytest-runner'],
       tests_require=['pytest', 'pytest-flask'],
       zip_safe=False)
