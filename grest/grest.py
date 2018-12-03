@@ -30,7 +30,7 @@ from flask_classful import FlaskView, route
 from neomodel import StructuredNode
 
 from .auth import authenticate, authorize
-from .verbs.delete import delete
+from .verbs.delete import delete, delete_all
 from .verbs.get import get
 from .verbs.index import index
 from .verbs.patch import patch
@@ -155,15 +155,19 @@ class GRest(FlaskView):
         """
         return patch(self, request, primary_id)
 
+    @route("/", methods=["DELETE"])
     @route("/<primary_id>", methods=["DELETE"])
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["DELETE"])
     @authenticate
     @authorize
-    def delete(self, primary_id, secondary_model_name=None, secondary_id=None):
+    def delete(self, primary_id=None, secondary_model_name=None, secondary_id=None):
         """
         Deletes a node or its specific relation
         primary_id [str] unique id of the primary (source) node (model)
         secondary_model_name [str] name of the secondary (destination) node (model)
         secondary_id [str] unique id of the secondary (destination) node (model)
         """
-        return delete(self, request, primary_id, secondary_model_name, secondary_id)
+        if primary_id is None:
+            return delete_all(self, request)
+        else:
+            return delete(self, request, primary_id, secondary_model_name, secondary_id)

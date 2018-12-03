@@ -19,6 +19,7 @@
 #
 
 import json
+import os
 
 import pytest
 from examples.app import create_app
@@ -87,6 +88,15 @@ def test_api_delete(client):
     res = client.delete("/v1/persons/" + uid)
     assert res.status_code == 200
     assert res.json == {"result": "OK"}
+
+
+def test_api_delete_all_disabled(client):
+    """PersonsView:delete(_all)"""
+    # The default behaviour is that the delete_all feature
+    # should be disabled in the global config file
+    res = client.delete("/v1/persons/")
+    assert res.status_code == 403
+    assert res.json == {"errors": ["The requested feature is disabled."]}
 
 
 @pytest.fixture

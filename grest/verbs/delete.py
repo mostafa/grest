@@ -33,6 +33,7 @@ import grest.messages as msg
 from grest.exceptions import HTTPException
 from grest.utils import serialize
 from grest.validation import validate_models
+from grest.global_config import ENABLE_DELETE_ALL
 
 
 def delete(self,
@@ -63,7 +64,7 @@ def delete(self,
                 secondary_selected_item,
                 secondary.model,
                 secondary.id]):
-            # user either wants to update a relation or
+            # user either wants to delete a relation or
             # has provided invalid information
             if hasattr(primary_selected_item, secondary.model_name):
                 relation_exists = primary_selected_item.relation_exists(
@@ -103,7 +104,35 @@ def delete(self,
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except UniqueProperty as e:
         self.__log.exception(e)
-        raise HTTPException(msg.NON_UNIQUE_PROPERTIY, 409)
+        raise HTTPException(msg.NON_UNIQUE_PROPERTY, 409)
+    except RequiredProperty as e:
+        self.__log.exception(e)
+        raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)
+
+
+def delete_all(self, request):
+    try:
+        # patch __log
+        self.__log = self._GRest__log
+
+        (primary, _) = validate_models(self)
+
+        if all([ENABLE_DELETE_ALL == "True", primary.model]):
+            # user wants to delete all items (including relations)
+            results = db.cypher_query("MATCH (n:{0}) DETACH DELETE n".format(
+                primary.model.__name__))
+            if results[0] == []:
+                return serialize(dict(result="OK"))
+            else:
+                raise HTTPException(msg.DELETE_FAILED, 500)
+        else:
+            raise HTTPException(msg.FEATURE_IS_DISABLED, 403)
+    except (DoesNotExist, AttributeError) as e:
+        self.__log.exception(e)
+        raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
+    except UniqueProperty as e:
+        self.__log.exception(e)
+        raise HTTPException(msg.NON_UNIQUE_PROPERTY, 409)
     except RequiredProperty as e:
         self.__log.exception(e)
         raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)

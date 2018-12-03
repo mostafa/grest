@@ -46,3 +46,5 @@ LOG_FORMAT = os.getenv(
     "LOG_FORMAT", "%(levelname)s::%(asctime)-15s::%(process)d::%(filename)s::%(message)s")
 
 QUERY_LIMIT = 20
+
+ENABLE_DELETE_ALL = os.getenv("ENABLE_DELETE_ALL", False)
