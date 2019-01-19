@@ -135,9 +135,10 @@ class NodeAndRelationHelper(object):
         All internal GRest methods should use this property.
         """
 
-        if len(self.__validation_rules__) > 0:
-            # there is a set of user-defined validation rules
-            return self.__validation_rules__
+        if hasattr(self, "__validation_rules__"):
+            if len(self.__validation_rules__) > 0:
+                # there is a set of user-defined validation rules
+                return self.__validation_rules__
 
         model_types = [
             StringProperty, DateTimeProperty, DateProperty,
