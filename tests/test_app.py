@@ -35,7 +35,7 @@ def test_index(client):
 
 def test_api_index(client):
     """PersonsView:index"""
-    res = client.get("/v1/persons")
+    res = client.get("/v1/persons", data="{}")
     assert res.status_code == 404
     assert res.json == {"errors": ["No person exists."]}
 
