@@ -26,6 +26,13 @@ import sys
 
 from autologging import logged
 from flask import request
+
+# Monkey-patching to fix https://github.com/marshmallow-code/webargs/issues/360
+import flask.json
+from simplejson import dumps, loads
+flask.json.dumps = dumps
+flask.json.loads = loads
+
 from flask_classful import FlaskView, route
 from neomodel import StructuredNode
 

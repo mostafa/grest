@@ -32,7 +32,6 @@ pet_id = ""
 def test_api_index(client):
     res = client.get("/persons",
                      query_string={"skip": 10, "limit": 1},
-                     data="{}",
                      headers={"Content-Type": "application/json"})
     assert res.status_code == 404
 
@@ -62,7 +61,6 @@ def test_api_index_validation_error(client):
 def test_api_index_request_infinite_items(client):
     res = client.get("/persons",
                      query_string={"skip": 100000},
-                     data="{}",
                      headers={"Content-Type": "application/json"})
     assert res.status_code == 404
     assert "errors" in res.json
@@ -126,7 +124,6 @@ def test_api_index_skip_limit_order_by(client):
 
     # get all persons in YAML format
     res = client.get("/persons",
-                     data="''\n",  # empty string
                      query_string={"order_by": "first_name"},
                      headers={"Accept": "text/yaml"})
     assert res.status_code == 200
@@ -154,7 +151,7 @@ def test_api_index_skip_limit_order_by(client):
 
 def test_api_index_pets(client):
     """PetsView:index"""
-    res = client.get("/pets", data="{}")
+    res = client.get("/pets")
     assert res.status_code == 404
     assert res.json == {"errors": ["No pet exists."]}
 
