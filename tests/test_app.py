@@ -67,8 +67,10 @@ def test_api_put(client):
                      data=json.dumps({"first_name": "test3", "last_name": "test4"}),
                      headers={'content-type': 'application/json'})
     assert res.status_code == 200
+    old_uid = uid
     if ("uid" in res.json):
         uid = res.json["uid"]
+    assert old_uid != uid
     assert "uid" in res.json
 
 
