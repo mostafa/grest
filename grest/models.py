@@ -33,36 +33,23 @@ class NodeAndRelationHelper(object):
 
     def to_dict(self):
         name = 0
-        properties = [p[name] for p in self.defined_properties().items()]
-        blocked_properties = ["id",
-                              "password",
-                              "current_otp",
-                              "validation_rules"]
+        properties = set([prop[name] for prop in self.defined_properties().items()])
+        blocked_properties = ["validation_rules"]
 
         if hasattr(self, "__filtered_fields__"):
             blocked_properties.extend(self.__filtered_fields__)
 
-        removable_keys = set()
-        for prop in properties:
-            # remove null key/values
-            if getattr(self, prop) is None:
-                removable_keys.add(prop)
+        # Add null-valued props to filtered_props unique set
+        # Add relations to filtered_props unique set
+        # Add non-blocked props to filtered_props unique set
+        filtered_props = set(
+            filter(lambda prop:
+                   any([getattr(self, prop) is None,
+                        isinstance(getattr(self, prop),
+                                   relationship_manager.RelationshipManager),
+                        prop in blocked_properties]), properties))
 
-            # remove display functions for choices
-            # if prop.startswith("get_") and prop.endswith("_display"):
-            #     removable_keys.add(prop)
-
-            # remove relations for now!!!
-            if isinstance(getattr(self, prop),
-                          relationship_manager.RelationshipManager):
-                removable_keys.add(prop)
-
-            # remove blocked properties, e.g. password, id, ...
-            if prop in blocked_properties:
-                removable_keys.add(prop)
-
-        for key in removable_keys:
-            properties.remove(key)
+        properties = properties - filtered_props
 
         result = {key: getattr(self, key) for key in properties}
 
@@ -87,7 +74,7 @@ class NodeAndRelationHelper(object):
         secondary_items = None
         if all([secondary_selection_field, secondary_id]):
             secondary_items = relation_obj.get(
-                    **{secondary_selection_field: secondary_id})
+                **{secondary_selection_field: secondary_id})
         else:
             secondary_items = relation_obj.all()
 
