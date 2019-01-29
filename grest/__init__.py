@@ -1,6 +1,6 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018 Mostafa Moradian <mostafamoradian0@gmail.com>
+# Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
 #
 # This file is part of grest.
 #
@@ -20,4 +20,4 @@
 
 from .grest import GRest
 
-__version__ = '1.0.1'
+__version__ = '1.1.0'
