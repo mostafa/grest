@@ -1,0 +1,44 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
+#
+# This file is part of grest.
+#
+# grest is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# grest is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with grest.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import sys
+from cookiecutter.main import cookiecutter
+
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
+
+if __name__ == "__main__":
+    try:
+        if len(sys.argv) < 2:
+            raise Exception("Usage: grest PROJECT_NAME")
+
+        project_path = Path(sys.argv[1]).resolve()
+        if project_path.exists():
+            raise Exception(
+                "[ERROR] Directory exists. Consider using a different project name.")
+
+        template = Path(__file__).resolve().parent.joinpath("template")
+        cookiecutter(str(template), overwrite_if_exists=False)
+    except Exception as e:
+        print(str(e))

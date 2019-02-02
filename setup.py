@@ -66,4 +66,5 @@ For more information, visit github page of `the project <https://github.com/most
       ],
       setup_requires=['pytest-runner'],
       tests_require=['pytest', 'pytest-flask'],
+      scripts=['bin/grest'],
       zip_safe=False)
