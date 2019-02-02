@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
@@ -18,16 +19,26 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import sys
+from cookiecutter.main import cookiecutter
 
-class HTTPException(Exception):
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 
-    """
-        Base class for all http exceptions raised in all functions
-    """
 
-    def __init__(self, message, status_code):
-        self.message = message
-        self.status_code = status_code
+if __name__ == "__main__":
+    try:
+        if len(sys.argv) < 2:
+            raise Exception("Usage: grest PROJECT_NAME")
 
-    def __str__(self):
-        return self.message
+        project_path = Path(sys.argv[1]).resolve()
+        if project_path.exists():
+            raise Exception(
+                "[ERROR] Directory exists. Consider using a different project name.")
+
+        template = Path(__file__).resolve().parent.joinpath("template")
+        cookiecutter(str(template), overwrite_if_exists=False)
+    except Exception as e:
+        print(str(e))

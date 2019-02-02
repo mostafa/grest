@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
 #
@@ -66,4 +66,5 @@ For more information, visit github page of `the project <https://github.com/most
       ],
       setup_requires=['pytest-runner'],
       tests_require=['pytest', 'pytest-flask'],
+      scripts=['bin/grest'],
       zip_safe=False)

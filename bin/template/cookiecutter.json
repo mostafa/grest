@@ -1,0 +1,14 @@
+{
+    "app_name": "api",
+    "grest_version": "1.2.0",
+    "DEBUG": false,
+    "IP_ADDRESS": "localhost",
+    "PORT": "5000",
+    "NEO4J_USERNAME": "NEO4J",
+    "NEO4J_PASSWORD": "NEO4J",
+    "NEO4J_HOSTNAME": "localhost",
+    "NEO4J_BOLT_PORT": 7687,
+    "SECRET_KEY": "",
+    "X_AUTH_TOKEN": "X-Auth-Token",
+    "ENABLE_DELETE_ALL": false
+}

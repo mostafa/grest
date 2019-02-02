@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
 #

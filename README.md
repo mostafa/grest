@@ -55,6 +55,13 @@ You can find an example app in [examples](https://github.com/mostafa/grest/tree/
 + `app.py` is a simple grest app that contains only one route `(/persons)`.
 + `extended_app.py` is the extended version of the above app and contains another route `(/pets)`, its relationship with `Person` model and a custom method (route) to handle `RelationshipFrom` properties. The `RelationshipTo` is automatically constructed using secondary model and secondary selection field of the `PersonsView`.
 
+## grest Command
+The package ships a very simple command that can help you create a boilerplate Flask application. Simply run the following command:
+
+```bash
+grest <project_name>
+```
+
 ## Usage
 In order to build an API, you should make a simple Flask app (or you may already have one).
 

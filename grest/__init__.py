@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
 #
@@ -20,4 +20,4 @@
 
 from .grest import GRest
 
-__version__ = '1.1.0'
+__version__ = '1.2.0'
