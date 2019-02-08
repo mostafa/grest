@@ -43,11 +43,11 @@ class Pet(StructuredNode, models.Node):
     """Pet model"""
     pet_id = UniqueIdProperty()
     name = StringProperty()
-    owner = RelationshipFrom("Person", "HAS_PET")
+    owner = RelationshipFrom("User", "HAS_PET")
 
 
-class Person(StructuredNode, models.Node):
-    """Person model"""
+class User(StructuredNode, models.Node):
+    """User model"""
     __validation_rules__ = {
         "first_name": fields.Str(),
         "last_name": fields.Str(),
@@ -66,9 +66,9 @@ class Person(StructuredNode, models.Node):
     pets = RelationshipTo(Pet, "HAS_PET", model=PetInfo)
 
 
-class PersonsView(GRest):
-    """Person's View (/persons)"""
-    __model__ = {"primary": Person,
+class UsersView(GRest):
+    """User's View (/users)"""
+    __model__ = {"primary": User,
                  "secondary": {
                      "pets": Pet
                  }}
@@ -126,7 +126,7 @@ def create_app():
     else:
         app.ext_logger = app.logger
 
-    PersonsView.register(app, route_base="/persons", trailing_slash=False)
+    UsersView.register(app, route_base="/users", trailing_slash=False)
     PetsView.register(app, route_base="/pets", trailing_slash=False)
 
     return app
