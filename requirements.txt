@@ -12,7 +12,7 @@ setuptools==40.8.0
 Unidecode==1.0.23
 webargs==5.1.2
 Werkzeug==0.14.1
-PyYAML==5.1b1
+PyYAML==5.1b3
 simplejson==3.16.0
 pathlib2==2.3.3
 cookiecutter==1.6.0
