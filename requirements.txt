@@ -11,7 +11,7 @@ requests==2.21.0
 setuptools==41.0.1
 Unidecode==1.0.23
 webargs==5.3.1
-Werkzeug==0.15.2
+Werkzeug==0.15.4
 PyYAML==5.1
 simplejson==3.16.0
 pathlib2==2.3.3
