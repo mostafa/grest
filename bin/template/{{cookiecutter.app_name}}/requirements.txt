@@ -1,1 +1,1 @@
-pygrest==1.3.0
+pygrest==1.4.0
