@@ -28,8 +28,8 @@ REQUIREMENTS = [r.rstrip() for r in open("requirements.txt").readlines()]
 
 # Reading package version (the same way the sqlalchemy does)
 with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
-  package_version = re.compile(
-      r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
+    package_version = re.compile(
+        r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
 
 setup(name="pygrest",
