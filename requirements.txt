@@ -14,5 +14,5 @@ webargs==5.5.1
 Werkzeug==0.16.0
 PyYAML==5.1.2
 simplejson==3.16.0
-pathlib2==2.3.4
+pathlib2==2.3.5
 cookiecutter==1.6.0
