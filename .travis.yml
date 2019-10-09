@@ -30,10 +30,8 @@ before_install:
   - neo4j-community-$NEO4J_VERSION/bin/neo4j start
 
 python:
-  - "2.7"
   - "3.6"
   - "3.7"
-  # - "pypy"
   - "pypy3.5"
 
 install:
