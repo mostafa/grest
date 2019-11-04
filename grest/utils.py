@@ -18,8 +18,6 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
-
 import dicttoxml
 from markupsafe import escape_silent as escape
 import yaml
