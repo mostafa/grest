@@ -13,6 +13,6 @@ Unidecode==1.1.1
 webargs==5.5.2
 Werkzeug==0.16.0
 PyYAML==5.1.2
-simplejson==3.16.0
+simplejson==3.17.0
 pathlib2==2.3.5
 cookiecutter==1.6.0
