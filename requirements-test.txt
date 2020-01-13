@@ -1,2 +1,2 @@
-pytest-flask
+pytest-flask==0.15.0
 pytest-runner
