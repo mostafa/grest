@@ -1,2 +1,2 @@
 pytest-flask
-pytest-runner
+pytest-runner==5.2
