@@ -17,8 +17,6 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
-
 from inflection import pluralize
 from markupsafe import escape_silent as escape
 from neomodel.exception import DoesNotExist

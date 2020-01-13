@@ -17,14 +17,7 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
-
-try:
-    # For Python 3.0 and later
-    from urllib.request import unquote
-except ImportError:
-    # Fall back to Python 2's urllib2
-    from urllib2 import unquote
+from urllib.request import unquote
 
 from neomodel import db
 from neomodel.exception import DoesNotExist

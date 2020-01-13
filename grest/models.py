@@ -18,8 +18,6 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from __future__ import absolute_import
-
 from collections import Iterable
 from neomodel import (ArrayProperty, BooleanProperty, DateProperty,
                       DateTimeProperty, EmailProperty, IntegerProperty,
@@ -33,7 +31,8 @@ class NodeAndRelationHelper(object):
 
     def to_dict(self):
         name = 0
-        properties = set([prop[name] for prop in self.defined_properties().items()])
+        properties = set([prop[name]
+                          for prop in self.defined_properties().items()])
         blocked_properties = ["validation_rules"]
 
         if hasattr(self, "__filtered_fields__"):

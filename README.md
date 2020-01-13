@@ -16,6 +16,10 @@ Build REST APIs with Neo4j and Flask, as quickly as possible!
 
 gREST (Graph-based REST API Framework) is a RESTful API development framework on top of Python, Flask, Neo4j and Neomodel. Its primary purpose is to ease development of RESTful APIs with little effort and minimum amount of code.
 
+## Python Version Compatibility
+
+If you want to use gREST with Python 2.7, you will need to stick with the good old [1.4.0](https://pypi.org/project/pygrest/1.4.0/) version. For Python 3.x onwards, use the latest version starting with 2.x.x.
+
 ## Features
 
 - Supported HTTP verbs: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`

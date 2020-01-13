@@ -12,9 +12,7 @@ addons:
 
 env:
   matrix:
-    - NEO4J_VERSION="3.1.3"
-    - NEO4J_VERSION="3.3.3"
-    - NEO4J_VERSION="3.4.1"
+    - NEO4J_VERSION="3.5.12"
 
 before_install:
   # download and source jdk_switcher
@@ -30,16 +28,12 @@ before_install:
   - neo4j-community-$NEO4J_VERSION/bin/neo4j start
 
 python:
-  - "2.7"
-  - "3.6"
   - "3.7"
-  # - "pypy"
   - "pypy3.5"
 
 install:
   - pip install -r requirements.txt
-  - pip install pytest-flask
-  - pip install pytest-runner
+  - pip install -r requirements-test.txt
   - pip install coveralls
   - python setup.py -q install
 
@@ -47,8 +41,7 @@ script:
   - jdk_switcher use oraclejdk8
   - coverage run --source=grest setup.py test
 
-after_success:
-  coveralls
+after_success: coveralls
 
 webhooks:
   urls:

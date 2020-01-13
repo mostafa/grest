@@ -5,14 +5,14 @@ Flask_Classful==0.14.2
 inflection==0.3.1
 MarkupSafe==1.1.1
 neomodel==3.3.2
-pytest==4.6.3
+pytest==5.3.2
 pytest-flask==0.15.0
 requests==2.22.0
-setuptools==44.0.0
+setuptools==45.0.0
 Unidecode==1.1.1
 webargs==5.5.2
 Werkzeug==0.16.0
-PyYAML==5.2
+PyYAML==5.3
 simplejson==3.17.0
 pathlib2==2.3.5
 cookiecutter==1.7.0
