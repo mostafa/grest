@@ -10,7 +10,7 @@ pytest-flask==0.15.1
 requests==2.23.0
 setuptools==45.2.0
 Unidecode==1.1.1
-webargs==5.5.3
+webargs==6.0.0
 Werkzeug==0.16.1
 PyYAML==5.3
 simplejson==3.17.0
