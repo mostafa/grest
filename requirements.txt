@@ -15,4 +15,4 @@ Werkzeug==1.0.1
 PyYAML==5.3.1
 simplejson==3.17.0
 pathlib2==2.3.5
-cookiecutter==1.7.0
+cookiecutter==1.7.1
