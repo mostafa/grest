@@ -7,7 +7,7 @@ MarkupSafe==1.1.1
 neomodel==3.3.2
 pytest==5.4.3
 pytest-flask==1.0.0
-requests==2.23.0
+requests==2.24.0
 setuptools==47.1.1
 Unidecode==1.1.1
 webargs==5.5.3
