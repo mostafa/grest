@@ -60,6 +60,7 @@ def create_app():
     neomodel.config.DATABASE_URL = global_config.DB_URL
     neomodel.config.AUTO_INSTALL_LABELS = True
     neomodel.config.FORCE_TIMEZONE = True  # default False
+    # global_config.LOG_ENABLED = True
 
     if global_config.LOG_ENABLED:
         logging.basicConfig(filename=os.path.abspath(os.path.join(

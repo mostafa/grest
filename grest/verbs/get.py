@@ -79,5 +79,5 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
                 raise HTTPException(msg.MODEL_DOES_NOT_EXIST.format(
                     model=primary.model_name), 404)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

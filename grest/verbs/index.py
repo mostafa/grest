@@ -85,5 +85,5 @@ def index(self, request):
             raise HTTPException(msg.NO_ITEM_EXISTS.format(
                 model=primary.model_name), 404)
     except DoesNotExist as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

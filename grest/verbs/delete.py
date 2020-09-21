@@ -93,13 +93,13 @@ def delete(self,
         else:
             raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except UniqueProperty as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.NON_UNIQUE_PROPERTY, 409)
     except RequiredProperty as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)
 
 
@@ -121,11 +121,11 @@ def delete_all(self, request):
         else:
             raise HTTPException(msg.FEATURE_IS_DISABLED, 403)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except UniqueProperty as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.NON_UNIQUE_PROPERTY, 409)
     except RequiredProperty as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)
