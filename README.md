@@ -18,7 +18,11 @@ gREST (Graph-based REST API Framework) is a RESTful API development framework on
 
 ## Python Version Compatibility
 
-If you want to use gREST with Python 2.7, you will need to stick with the good old [1.4.0](https://pypi.org/project/pygrest/1.4.0/) version. For Python 3.x onwards, use the latest version starting with 2.x.x.
+If you want to use gREST with Python 2.7, you will need to stick with the good old [1.4.0](https://pypi.org/project/pygrest/1.4.0/) version. For Python 3.x onwards, use the latest version starting with 2.x.x or the `master` branch.
+
+## Who's Using gREST?
+
+If you're using gREST on your project, please let me know on [Twitter](https://twitter.com/MosiMoradian) or [open an issue](https://github.com/mostafa/grest/issues/new).
 
 ## Features
 
