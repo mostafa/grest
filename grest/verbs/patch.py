@@ -60,6 +60,6 @@ def patch(self, request, primary_id):
         else:
             raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except DoesNotExist as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(
             "The requested item or relation does not exist.", 404)

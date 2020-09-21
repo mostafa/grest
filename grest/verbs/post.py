@@ -118,11 +118,11 @@ def post(self,
         else:
             raise HTTPException(msg.BAD_REQUEST, 400)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except UniqueProperty as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.NON_UNIQUE_PROPERTIY, 409)
     except RequiredProperty as e:
-        self.__log.exception(e)
+        self.__log.exception(e.message)
         raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)

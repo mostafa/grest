@@ -54,6 +54,7 @@ class NodeAndRelationHelper(object):
 
         return result
 
+    # TODO: Use or remove retrieve_relations kwarg
     def get_all(self,
                 secondary_model_name,
                 secondary_selection_field=None,
