@@ -8,7 +8,7 @@ neomodel==4.0.1
 pytest==6.0.1
 pytest-flask==1.0.0
 requests==2.24.0
-setuptools==50.3.0
+setuptools==50.3.2
 Unidecode==1.1.1
 webargs==5.5.3
 Werkzeug==1.0.1
