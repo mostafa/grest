@@ -27,11 +27,11 @@ import grest.messages as msg
 from grest.exceptions import HTTPException
 
 
-def validate_input(validation_rules, request):
+def validate_input(validation_rules, request, location="json"):
     # parse input data (validate or not!)
     # noinspection PyBroadException
     try:
-        query_data = parser.parse(validation_rules, request)
+        query_data = parser.parse(validation_rules, request, location=location)
     except:
         raise HTTPException(msg.VALIDATION_FAILED, 422)
 

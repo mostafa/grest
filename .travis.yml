@@ -12,7 +12,7 @@ addons:
 
 env:
   matrix:
-    - NEO4J_VERSION="3.5.12"
+    - NEO4J_VERSION="3.5.24"
 
 before_install:
   # download and source jdk_switcher
