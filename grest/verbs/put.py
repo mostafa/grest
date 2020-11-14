@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2019 Mostafa Moradian <mostafamoradian0@gmail.com>
+# Copyright (C) 2017- Mostafa Moradian <mostafamoradian0@gmail.com>
 #
 # This file is part of grest.
 #
