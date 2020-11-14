@@ -6,7 +6,7 @@ inflection==0.5.1
 MarkupSafe==1.1.1
 neomodel==4.0.1
 pytest==6.1.2
-pytest-flask==1.0.0
+pytest-flask==1.1.0
 setuptools==50.3.2
 requests==2.25.0
 Unidecode==1.1.1
