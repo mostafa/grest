@@ -18,7 +18,7 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from collections import Iterable
+from typing import Iterable
 from neomodel import (ArrayProperty, BooleanProperty, DateProperty,
                       DateTimeProperty, EmailProperty, IntegerProperty,
                       JSONProperty, StringProperty, UniqueIdProperty,
