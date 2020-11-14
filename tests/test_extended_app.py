@@ -127,7 +127,7 @@ def test_api_index_skip_limit_order_by(client):
                      query_string={"order_by": "first_name"},
                      headers={"Accept": "text/yaml"})
     assert res.status_code == 200
-    data = yaml.load(res.data)
+    data = yaml.load(res.data, Loader=yaml.SafeLoader)
     assert "users" in data
     assert len(data["users"]) == 10
     assert data["users"][0]["first_name"] == "1"

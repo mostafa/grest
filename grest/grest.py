@@ -27,28 +27,9 @@ from .verbs.delete import delete, delete_all
 from .auth import authenticate, authorize
 from neomodel import StructuredNode
 from flask_classful import FlaskView, route
-import imp
-import os
-import sys
 
 from autologging import logged
 from flask import request
-
-# Monkey-patching to fix https://github.com/marshmallow-code/webargs/issues/360
-import flask.json
-from simplejson import dumps, loads
-flask.json.dumps = dumps
-flask.json.loads = loads
-
-
-imp.reload(sys)
-
-try:
-    # For Python 3.0 and later
-    os.environ["PYTHONIOENCODING"] = "utf-8"
-except ImportError:
-    # Fall back for Python 2
-    sys.setdefaultencoding("utf-8")  # FIXME: a better way should be found!
 
 
 @logged
