@@ -1,14 +1,6 @@
 language: python
-sudo: yes
-dist: xenial
-group: edge
-
-jdk: openjdk8
-
-addons:
-  apt:
-    packages:
-      - openjdk-8-jre
+dist: bionic
+jdk: openjdk11
 
 env:
   matrix:
@@ -16,11 +8,7 @@ env:
     - NEO4J_VERSION="4.1.4"
 
 before_install:
-  # download and source jdk_switcher
-  # then switch to OpenJDK8
-  - wget https://raw.githubusercontent.com/michaelklishin/jdk_switcher/master/jdk_switcher.sh
-  - . ./jdk_switcher.sh
-  - jdk_switcher use openjdk8
+  - jdk_switcher use openjdk11
   # install Neo4j locally:
   - wget dist.neo4j.org/neo4j-community-$NEO4J_VERSION-unix.tar.gz
   - tar -xzf neo4j-community-$NEO4J_VERSION-unix.tar.gz
@@ -39,7 +27,6 @@ install:
   - python setup.py -q install
 
 script:
-  - jdk_switcher use oraclejdk8
   - coverage run --source=grest setup.py test
 
 after_success: coveralls
