@@ -51,7 +51,8 @@ class User(StructuredNode, models.Node):
     __validation_rules__ = {
         "first_name": fields.Str(),
         "last_name": fields.Str(),
-        "phone_number": fields.Str(required=True)
+        "secret_field": fields.Str(),
+        "phone_number": fields.Str(required=True),
     }
 
     __filtered_fields__ = ["secret_field"]
