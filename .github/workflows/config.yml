@@ -1,0 +1,37 @@
+name: test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    name: Test gREST
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "pypy-3.6"]
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+      - name: Set up Python 🐍
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies 📦
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+          python setup.py -q install
+      - name: Run Neo4j 🌍
+        uses: baptouuuu/setup-neo4j@v1.2.0
+        with:
+          tag: "3.5"
+          password: "neo4j"
+      - name: Test 🧪
+        run: coverage run --source=grest setup.py test
+      - name: Submit coverage report 📈
+        if: ${{ success() }}
+        run: coveralls
