@@ -1,0 +1,44 @@
+name: test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    name: Test gREST
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "pypy-3.6"]
+    services:
+      neo4j:
+        image: neo4j:3.5
+        env:
+          NEO4J_AUTH: neo4j/ci
+        ports:
+          - 7687:7687
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+      - name: Set up Python 🐍
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies 📦
+        run: |
+          sudo apt-get install -q -y libgeos-c1v5
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+          python setup.py -q install
+      - name: Test 🧪
+        env:
+          DB_URL: bolt://neo4j:ci@localhost:7687
+        run: coverage run --source=grest setup.py test
+      - name: Submit coverage report to Coveralls 📈
+        if: ${{ success() }}
+        run: coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
