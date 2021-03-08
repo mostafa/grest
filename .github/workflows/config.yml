@@ -33,6 +33,10 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-test.txt
           python setup.py -q install
+      - name: Check types and syntax 🦆
+        run: |
+          mypy .
+          flake8
       - name: Test 🧪
         env:
           DB_URL: bolt://neo4j:ci@localhost:7687
