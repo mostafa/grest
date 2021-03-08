@@ -25,9 +25,9 @@ from neomodel import db  # type: ignore
 from neomodel.exceptions import (DoesNotExist,  # type: ignore
                                  RequiredProperty, UniqueProperty)
 
+import grest
 import grest.messages as msg
 from grest.exceptions import HTTPException
-from grest.grest import GRestResponse
 from grest.utils import serialize
 from grest.validation import validate_input, validate_models
 
@@ -36,7 +36,7 @@ def put(self: FlaskView,
         request: Request,
         primary_id: str,
         secondary_model_name: Optional[str] = None,
-        secondary_id: Optional[str] = None) -> GRestResponse:
+        secondary_id: Optional[str] = None) -> "grest.GRestResponse":
     try:
         # patch __log
         self.__log = self._GRest__log

@@ -35,7 +35,7 @@ from grest.verbs.patch import patch
 from grest.verbs.post import post
 from grest.verbs.put import put
 
-GRestResponse = Union[SerializedType, HTTPException, None]
+GRestResponse = Optional[Union[SerializedType, HTTPException]]
 
 
 @logged
@@ -116,7 +116,7 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def post(self,
-             primary_id: str,
+             primary_id: Optional[str] = None,
              secondary_model_name: Optional[str] = None,
              secondary_id: Optional[str] = None) -> GRestResponse:
         """
@@ -126,7 +126,7 @@ class GRest(FlaskView):
         secondary_model_name [str] name of the secondary (destination) node (model)
         secondary_id [str] unique id of the secondary (destination) node (model)
         """
-        return post(self, request, primary_id, secondary_model_name, secondary_id)
+        return post(self, primary_id, secondary_model_name, secondary_id)
 
     @route("/<primary_id>", methods=["PUT"])
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["PUT"])
@@ -163,7 +163,7 @@ class GRest(FlaskView):
     @authenticate
     @authorize
     def delete(self,
-               primary_id: str,
+               primary_id: Optional[str] = None,
                secondary_model_name: Optional[str] = None,
                secondary_id: Optional[str] = None) -> GRestResponse:
         """

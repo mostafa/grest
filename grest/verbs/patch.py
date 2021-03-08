@@ -22,14 +22,14 @@ from flask_classful import FlaskView  # type: ignore
 from neomodel import db  # type: ignore
 from neomodel.exceptions import DoesNotExist  # type: ignore
 
+import grest
 import grest.messages as msg
-from grest import GRestResponse
 from grest.exceptions import HTTPException
 from grest.utils import serialize
 from grest.validation import validate_input, validate_models
 
 
-def patch(self: FlaskView, request: Request, primary_id: str) -> GRestResponse:
+def patch(self: FlaskView, request: Request, primary_id: str) -> "grest.GRestResponse":
     try:
         # patch __log
         self.__log = self._GRest__log

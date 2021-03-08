@@ -24,15 +24,15 @@ from markupsafe import escape_silent as escape
 from neomodel.exceptions import DoesNotExist  # type: ignore
 from webargs import fields  # type: ignore
 
+import grest
 import grest.messages as msg
-from grest import GRestResponse
 from grest.exceptions import HTTPException
 from grest.global_config import QUERY_LIMIT
 from grest.utils import serialize
 from grest.validation import validate_input, validate_models
 
 
-def index(self: FlaskView, request: Request) -> GRestResponse:
+def index(self: FlaskView, request: Request) -> "grest.GRestResponse":
     try:
         # patch __log
         self.__log = self._GRest__log

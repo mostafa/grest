@@ -18,31 +18,31 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from neomodel import fields as neomodel_fields  # type: ignore
+from neomodel import *  # type: ignore
 from webargs import fields as webargs_fields  # type: ignore
 
 import grest
 
 
-class model(neomodel_fields.StructuredNode, grest.models.Node):
+class model(StructuredNode, grest.models.Node):
     GREEK = (
         ("A", "Alpha"),
         ("B", "Beta"),
         ("G", "Gamma")
     )
 
-    uuid = neomodel_fields.UniqueIdProperty()
-    string = neomodel_fields.StringProperty(required=True)
-    choices = neomodel_fields.StringProperty(choices=GREEK)
-    integer = neomodel_fields.IntegerProperty()
-    json = neomodel_fields.JSONProperty()
-    array_of_string = neomodel_fields.ArrayProperty(
-        neomodel_fields.StringProperty())
-    raw_data = neomodel_fields.ArrayProperty()
-    date = neomodel_fields.DateProperty()
-    datetime = neomodel_fields.DateTimeProperty()
-    boolean = neomodel_fields.BooleanProperty()
-    email = neomodel_fields.EmailProperty()
+    uuid = UniqueIdProperty()
+    string = StringProperty(required=True)
+    choices = StringProperty(choices=GREEK)
+    integer = IntegerProperty()
+    json = JSONProperty()
+    array_of_string = ArrayProperty(
+        StringProperty())
+    raw_data = ArrayProperty()
+    date = DateProperty()
+    datetime = DateTimeProperty()
+    boolean = BooleanProperty()
+    email = EmailProperty()
 
 
 def test_validation_rules_property():

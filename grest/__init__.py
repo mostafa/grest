@@ -18,6 +18,6 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from grest.grest import GRest, GRestResponse  # noqa
+from .grest import GRest, GRestResponse  # noqa
 
 __version__ = '2.1.0'
