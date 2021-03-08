@@ -35,8 +35,8 @@ jobs:
           python setup.py -q install
       - name: Check types and syntax 🦆
         run: |
-          mypy .
-          flake8
+          mypy --exclude 'build/*' .
+          flake8 --exclude 'build/*' .
       - name: Test 🧪
         env:
           DB_URL: bolt://neo4j:ci@localhost:7687

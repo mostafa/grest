@@ -26,7 +26,7 @@ from flask import Flask
 from neomodel import StringProperty, StructuredNode, UniqueIdProperty
 from webargs import fields  # type: ignore
 
-from grest import GRest, global_config, models, utils
+from grest import GRest, global_config, models
 
 
 # noinspection PyAbstractClass
@@ -64,7 +64,8 @@ def create_app():
 
     if global_config.LOG_ENABLED:
         logging.basicConfig(filename=os.path.abspath(os.path.join(
-            global_config.LOG_LOCATION, global_config.LOG_FILENAME)), format=global_config.LOG_FORMAT)
+            global_config.LOG_LOCATION, global_config.LOG_FILENAME)),
+                            format=global_config.LOG_FORMAT)
         app.ext_logger = logging.getLogger()
         app.ext_logger.setLevel(global_config.LOG_LEVEL)
         handler = logging.handlers.RotatingFileHandler(

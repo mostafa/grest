@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from neomodel import StringProperty, StructuredNode, UniqueIdProperty
-from webargs import fields
+from neomodel import StringProperty, StructuredNode, UniqueIdProperty  # type: ignore
+from webargs import fields  # type: ignore
 
 from grest import models
 

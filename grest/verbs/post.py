@@ -22,8 +22,8 @@ from typing import Optional
 from flask import request
 from flask_classful import FlaskView  # type: ignore
 from neomodel import db  # type: ignore
-from neomodel.exceptions import (DoesNotExist,  # type: ignore
-                                 RequiredProperty, UniqueProperty)
+from neomodel.exceptions import DoesNotExist  # type: ignore
+from neomodel.exceptions import RequiredProperty, UniqueProperty
 
 import grest
 import grest.messages as msg

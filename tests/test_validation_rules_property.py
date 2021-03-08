@@ -18,7 +18,10 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from neomodel import *  # type: ignore
+from neomodel import (ArrayProperty, BooleanProperty, DateProperty,  # type: ignore
+                      DateTimeProperty, EmailProperty, IntegerProperty,
+                      JSONProperty, StringProperty, StructuredNode,
+                      UniqueIdProperty)
 from webargs import fields as webargs_fields  # type: ignore
 
 import grest

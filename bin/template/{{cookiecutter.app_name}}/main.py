@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import config
-import neomodel
+import neomodel  # type: ignore
 from flask import Flask
 from users import UsersView
 

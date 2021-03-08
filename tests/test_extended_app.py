@@ -169,8 +169,10 @@ def test_api_post_user(client):
     global uid
     res = client.post("/users",
                       data=json.dumps(
-                          {"first_name": "test1", "last_name": "test2",
-                          "phone_number": "123", "secret_field": "MY_SECRET"}),
+                          {"first_name": "test1",
+                           "last_name": "test2",
+                           "phone_number": "123",
+                           "secret_field": "MY_SECRET"}),
                       headers={"Content-Type": "application/json"})
     assert res.status_code == 200
     if ("uid" in res.json):

@@ -31,7 +31,7 @@ from neomodel import (IntegerProperty, RelationshipFrom, RelationshipTo,
                       UniqueIdProperty)
 from webargs import fields  # type: ignore
 
-from grest import GRest, global_config, models, utils
+from grest import GRest, global_config, models
 
 
 class PetInfo(StructuredRel, models.Relation):
@@ -98,7 +98,7 @@ class PetsView(GRest):
                     return jsonify(errors=["Selected pet has not been adopted yet!"]), 404
             else:
                 return jsonify(errors=["Selected pet does not exists!"]), 404
-        except:
+        except Exception:
             return jsonify(errors=["An error occurred while processing your request."]), 500
 
 
@@ -115,7 +115,8 @@ def create_app():
 
     if (global_config.LOG_ENABLED):
         logging.basicConfig(filename=os.path.abspath(os.path.join(
-            global_config.LOG_LOCATION, global_config.LOG_FILENAME)), format=global_config.LOG_FORMAT)
+            global_config.LOG_LOCATION, global_config.LOG_FILENAME)),
+                            format=global_config.LOG_FORMAT)
         app.ext_logger = logging.getLogger()
         app.ext_logger.setLevel(global_config.LOG_LEVEL)
         handler = logging.handlers.RotatingFileHandler(
