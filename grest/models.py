@@ -18,19 +18,19 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from typing import Iterable
+from typing import Iterable, Dict, Any, Optional, Union
 
-from neomodel import (ArrayProperty, BooleanProperty, DateProperty,
+from neomodel import (ArrayProperty, BooleanProperty, DateProperty,  # type: ignore
                       DateTimeProperty, EmailProperty, IntegerProperty,
                       JSONProperty, StringProperty, UniqueIdProperty,
-                      relationship_manager)
-from webargs import fields
+                      relationship_manager, NodeSet, StructuredNode, StructuredRel)
+from webargs import fields  # type: ignore
 
 
 class NodeAndRelationHelper(object):
-    __validation_rules__ = {}
+    __validation_rules__: Dict[str, fields.Field] = {}
 
-    def to_dict(self):
+    def to_dict(self: Union[StructuredNode, StructuredRel]) -> Dict[str, Any]:
         name = 0
         properties = set([prop[name]
                           for prop in self.defined_properties().items()])
@@ -56,11 +56,11 @@ class NodeAndRelationHelper(object):
         return result
 
     # TODO: Use or remove retrieve_relations kwarg
-    def get_all(self,
-                secondary_model_name,
-                secondary_selection_field=None,
-                secondary_id=None,
-                retrieve_relations=False):
+    def get_all(self: Union[StructuredNode, StructuredRel],
+                secondary_model_name: str,
+                secondary_selection_field: Optional[str] = None,
+                secondary_id: Optional[str] = None,
+                retrieve_relations: bool = False) -> Optional[Union[Dict[str, Any], Iterable[Dict[str, Any]]]]:
         """
         Get all relations and their associated relationship information
         """
@@ -105,16 +105,16 @@ class NodeAndRelationHelper(object):
 
         return None
 
-    def relation_exists(self,
-                        secondary_model_name,
-                        secondary_selected_item):
+    def relation_exists(self: Union[StructuredNode, StructuredRel],
+                        secondary_model_name: str,
+                        secondary_selected_item: Optional[NodeSet]) -> bool:
         if hasattr(self, secondary_model_name):
             relation = getattr(self, secondary_model_name)
             return secondary_selected_item in relation.all()
         return False
 
-    @property
-    def validation_rules(self):
+    @ property
+    def validation_rules(self: Union[StructuredNode, StructuredRel]) -> Dict[str, fields.Field]:
         """
         if the user has defined validation rules,
         return that, otherwise construct a set of

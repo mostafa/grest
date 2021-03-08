@@ -21,10 +21,10 @@
 import logging
 import os
 
-import neomodel
+import neomodel  # type: ignore
 from flask import Flask
 from neomodel import StringProperty, StructuredNode, UniqueIdProperty
-from webargs import fields
+from webargs import fields  # type: ignore
 
 from grest import GRest, global_config, models, utils
 

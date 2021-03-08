@@ -18,22 +18,14 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import re
-from os.path import dirname, join
-
-from setuptools import setup
+from grest import __version__
+from setuptools import setup  # type: ignore
 
 # Extract requirements from requirements.txt
 REQUIREMENTS = [r.rstrip() for r in open("requirements.txt").readlines()]
 
-# Reading package version (the same way the sqlalchemy does)
-with open(join(dirname(__file__), 'grest', '__init__.py')) as v_file:
-    package_version = re.compile(
-        r".*__version__ = '(.*?)'", re.S).match(v_file.read()).group(1)
-
-
 setup(name="pygrest",
-      version=package_version,
+      version=__version__,
       description="Build REST APIs with Neo4j and Flask, as quickly as possible!",
       url="https://github.com/mostafa/GRest",
       author="Mostafa Moradian",

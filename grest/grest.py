@@ -18,10 +18,10 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from autologging import logged
+from autologging import logged  # type: ignore
 from flask import request
-from flask_classful import FlaskView, route
-from neomodel import StructuredNode
+from flask_classful import FlaskView, route  # type: ignore
+from neomodel import StructuredNode  # type: ignore
 
 from .auth import authenticate, authorize
 from .verbs.delete import delete, delete_all

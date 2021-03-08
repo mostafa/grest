@@ -19,8 +19,8 @@
 
 from inflection import pluralize
 from markupsafe import escape_silent as escape
-from neomodel.exception import DoesNotExist
-from webargs import fields
+from neomodel.exception import DoesNotExist  # type: ignore
+from webargs import fields  # type: ignore
 
 import grest.messages as msg
 from grest.exceptions import HTTPException
@@ -49,7 +49,8 @@ def index(self, request):
 
         (primary, secondary) = validate_models(self)
 
-        query_data = validate_input(__validation_rules__, request, location="query")
+        query_data = validate_input(
+            __validation_rules__, request, location="query")
         skip = query_data.get("skip")
         limit = query_data.get("skip") + query_data.get("limit")
         order_by = escape(query_data.get("order_by"))

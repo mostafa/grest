@@ -23,13 +23,13 @@ import logging.handlers
 import os
 
 import markupsafe
-import neomodel
+import neomodel  # type: ignore
 from flask import Flask, jsonify
-from flask_classful import route
+from flask_classful import route  # type: ignore
 from neomodel import (IntegerProperty, RelationshipFrom, RelationshipTo,
                       StringProperty, StructuredNode, StructuredRel,
                       UniqueIdProperty)
-from webargs import fields
+from webargs import fields  # type: ignore
 
 from grest import GRest, global_config, models, utils
 

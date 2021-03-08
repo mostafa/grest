@@ -18,7 +18,7 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import dicttoxml
+import dicttoxml  # type: ignore
 import yaml
 from flask import jsonify, request
 from markupsafe import escape_silent as escape

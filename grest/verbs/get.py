@@ -17,11 +17,9 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from urllib.request import unquote
 
 from inflection import pluralize, singularize
-from markupsafe import escape_silent as escape
-from neomodel.exception import DoesNotExist
+from neomodel.exception import DoesNotExist  # type: ignore
 
 import grest.messages as msg
 from grest.exceptions import HTTPException
