@@ -2,6 +2,7 @@
 
 from neomodel import StringProperty, StructuredNode, UniqueIdProperty
 from webargs import fields
+
 from grest import models
 
 

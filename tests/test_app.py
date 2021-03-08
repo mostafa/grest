@@ -22,8 +22,9 @@ import json
 import os
 
 import pytest
-from examples.app import create_app
 from flask import url_for
+
+from examples.app import create_app
 
 uid = ""
 

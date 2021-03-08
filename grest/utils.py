@@ -19,12 +19,12 @@
 #
 
 import dicttoxml
-from markupsafe import escape_silent as escape
 import yaml
 from flask import jsonify, request
+from markupsafe import escape_silent as escape
 
-import grest.messages as msg
 import grest.global_config as global_config
+import grest.messages as msg
 
 
 def get_header(name):

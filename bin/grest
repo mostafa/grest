@@ -20,6 +20,7 @@
 #
 
 import sys
+
 from cookiecutter.main import cookiecutter
 
 try:

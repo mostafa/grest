@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from grest import GRest
 from schema import User
+
+from grest import GRest
 
 
 class UsersView(GRest):

@@ -24,9 +24,9 @@ from neomodel.exception import DoesNotExist, RequiredProperty, UniqueProperty
 
 import grest.messages as msg
 from grest.exceptions import HTTPException
+from grest.global_config import ENABLE_DELETE_ALL
 from grest.utils import serialize
 from grest.validation import validate_models
-from grest.global_config import ENABLE_DELETE_ALL
 
 
 def delete(self,

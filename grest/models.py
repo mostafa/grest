@@ -19,6 +19,7 @@
 #
 
 from typing import Iterable
+
 from neomodel import (ArrayProperty, BooleanProperty, DateProperty,
                       DateTimeProperty, EmailProperty, IntegerProperty,
                       JSONProperty, StringProperty, UniqueIdProperty,

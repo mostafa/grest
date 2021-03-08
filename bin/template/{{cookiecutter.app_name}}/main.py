@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import config
 import neomodel
 from flask import Flask
-
-import config
 from users import UsersView
-
 
 if __name__ == "__main__":
     app = Flask(__name__)

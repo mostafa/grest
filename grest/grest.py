@@ -18,18 +18,18 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from .verbs.put import put
-from .verbs.post import post
-from .verbs.patch import patch
-from .verbs.index import index
-from .verbs.get import get
-from .verbs.delete import delete, delete_all
-from .auth import authenticate, authorize
-from neomodel import StructuredNode
-from flask_classful import FlaskView, route
-
 from autologging import logged
 from flask import request
+from flask_classful import FlaskView, route
+from neomodel import StructuredNode
+
+from .auth import authenticate, authorize
+from .verbs.delete import delete, delete_all
+from .verbs.get import get
+from .verbs.index import index
+from .verbs.patch import patch
+from .verbs.post import post
+from .verbs.put import put
 
 
 @logged
