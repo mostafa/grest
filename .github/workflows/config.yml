@@ -10,9 +10,6 @@ jobs:
   test:
     name: Test gREST
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.7", "pypy-3.6"]
     services:
       neo4j:
         image: neo4j:3.5
@@ -26,10 +23,9 @@ jobs:
       - name: Set up Python 🐍
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.7"
       - name: Install dependencies 📦
         run: |
-          sudo apt-get install -q -y libgeos-c1v5
           pip install -r requirements.txt
           pip install -r requirements-test.txt
           python setup.py -q install
