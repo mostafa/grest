@@ -18,6 +18,8 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from typing import Any, Dict, Optional, Tuple, Union
+
 import dicttoxml  # type: ignore
 import yaml
 from flask import jsonify, request
@@ -26,15 +28,17 @@ from markupsafe import escape_silent as escape
 import grest.global_config as global_config
 import grest.messages as msg
 
+SerializedType = Union[str, bytes, Tuple[Union[str, bytes, int], int]]
 
-def get_header(name):
+
+def get_header(name: str) -> Optional[str]:
     if (name in request.headers):
         return request.headers.get(escape(name))
     else:
         return None
 
 
-def serialize(data):
+def serialize(data: Dict[str, Any]) -> SerializedType:
     try:
         accept = get_header(global_config.ACCEPT)
 

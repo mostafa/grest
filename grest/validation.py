@@ -32,7 +32,7 @@ def validate_input(validation_rules, request, location="json"):
     # noinspection PyBroadException
     try:
         query_data = parser.parse(validation_rules, request, location=location)
-    except:
+    except Exception:
         raise HTTPException(msg.VALIDATION_FAILED, 422)
 
     if not query_data:

@@ -17,18 +17,19 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from urllib.parse import unquote
-
+from flask import Request
+from flask_classful import FlaskView  # type: ignore
 from neomodel import db  # type: ignore
-from neomodel.exception import DoesNotExist  # type: ignore
+from neomodel.exceptions import DoesNotExist  # type: ignore
 
 import grest.messages as msg
+from grest import GRestResponse
 from grest.exceptions import HTTPException
 from grest.utils import serialize
 from grest.validation import validate_input, validate_models
 
 
-def patch(self, request, primary_id):
+def patch(self: FlaskView, request: Request, primary_id: str) -> GRestResponse:
     try:
         # patch __log
         self.__log = self._GRest__log
@@ -60,6 +61,6 @@ def patch(self, request, primary_id):
         else:
             raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except DoesNotExist as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(
             "The requested item or relation does not exist.", 404)

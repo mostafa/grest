@@ -18,18 +18,24 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from typing import Dict, Optional, Union
+
 from autologging import logged  # type: ignore
 from flask import request
 from flask_classful import FlaskView, route  # type: ignore
 from neomodel import StructuredNode  # type: ignore
 
-from .auth import authenticate, authorize
-from .verbs.delete import delete, delete_all
-from .verbs.get import get
-from .verbs.index import index
-from .verbs.patch import patch
-from .verbs.post import post
-from .verbs.put import put
+from grest.auth import authenticate, authorize
+from grest.exceptions import HTTPException
+from grest.utils import SerializedType
+from grest.verbs.delete import delete, delete_all
+from grest.verbs.get import get
+from grest.verbs.index import index
+from grest.verbs.patch import patch
+from grest.verbs.post import post
+from grest.verbs.put import put
+
+GRestResponse = Union[SerializedType, HTTPException, None]
 
 
 @logged
@@ -64,15 +70,17 @@ class GRest(FlaskView):
                                 "likes": "post_id"
                            }}
     """
-    __model__ = {"primary": StructuredNode, "secondary": {}}
-    __selection_field__ = {"primary": "id", "secondary": {}}
+    __model__: Dict[str, Union[StructuredNode, Dict[str, StructuredNode]]] = {
+        "primary": StructuredNode, "secondary": {}}
+    __selection_field__: Dict[str, Union[str, Dict[str, str]]] = {
+        "primary": "id", "secondary": {}}
 
     def __init__(self):
         super(self.__class__, self)
 
     @authenticate
     @authorize
-    def index(self):
+    def index(self) -> GRestResponse:
         """
         Returns an specified number of nodes, with pagination (skip/limit)
 
@@ -86,7 +94,10 @@ class GRest(FlaskView):
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["GET"])
     @authenticate
     @authorize
-    def get(self, primary_id, secondary_model_name=None, secondary_id=None):
+    def get(self,
+            primary_id: str,
+            secondary_model_name: Optional[str] = None,
+            secondary_id: Optional[str] = None) -> GRestResponse:
         """
         Returns an specified node or its related node
         primary_id [str] unique id of the primary (src) node (model)
@@ -104,7 +115,10 @@ class GRest(FlaskView):
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["POST"])
     @authenticate
     @authorize
-    def post(self, primary_id=None, secondary_model_name=None, secondary_id=None):
+    def post(self,
+             primary_id: str,
+             secondary_model_name: Optional[str] = None,
+             secondary_id: Optional[str] = None) -> GRestResponse:
         """
         Updates an specified node or its relation
         (creates relation, if none exists)
@@ -118,7 +132,10 @@ class GRest(FlaskView):
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["PUT"])
     @authenticate
     @authorize
-    def put(self, primary_id, secondary_model_name=None, secondary_id=None):
+    def put(self,
+            primary_id: str,
+            secondary_model_name: Optional[str] = None,
+            secondary_id: Optional[str] = None) -> GRestResponse:
         """
         Updates an specified node or its relation
         (delete old nodes and relations and creates new ones)
@@ -131,7 +148,7 @@ class GRest(FlaskView):
     @route("/<primary_id>", methods=["PATCH"])
     @authenticate
     @authorize
-    def patch(self, primary_id):
+    def patch(self, primary_id: str) -> GRestResponse:
         """
         Partially updates a node
         primary_id [str] unique id of the primary (source) node (model)
@@ -145,7 +162,10 @@ class GRest(FlaskView):
     @route("/<primary_id>/<secondary_model_name>/<secondary_id>", methods=["DELETE"])
     @authenticate
     @authorize
-    def delete(self, primary_id=None, secondary_model_name=None, secondary_id=None):
+    def delete(self,
+               primary_id: str,
+               secondary_model_name: Optional[str] = None,
+               secondary_id: Optional[str] = None) -> GRestResponse:
         """
         Deletes a node or its specific relation
         primary_id [str] unique id of the primary (source) node (model)
@@ -153,6 +173,6 @@ class GRest(FlaskView):
         secondary_id [str] unique id of the secondary (destination) node (model)
         """
         if primary_id is None:
-            return delete_all(self, request)
+            return delete_all(self)
         else:
-            return delete(self, request, primary_id, secondary_model_name, secondary_id)
+            return delete(self, primary_id, secondary_model_name, secondary_id)

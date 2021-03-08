@@ -25,9 +25,9 @@ class HTTPException(Exception):
         Base class for all http exceptions raised in all functions
     """
 
-    def __init__(self, message, status_code):
+    def __init__(self, message: str, status_code: int):
         self.message = message
         self.status_code = status_code
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message

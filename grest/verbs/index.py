@@ -17,19 +17,22 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from flask import Request
+from flask_classful import FlaskView  # type: ignore
 from inflection import pluralize
 from markupsafe import escape_silent as escape
-from neomodel.exception import DoesNotExist  # type: ignore
+from neomodel.exceptions import DoesNotExist  # type: ignore
 from webargs import fields  # type: ignore
 
 import grest.messages as msg
+from grest import GRestResponse
 from grest.exceptions import HTTPException
 from grest.global_config import QUERY_LIMIT
 from grest.utils import serialize
 from grest.validation import validate_input, validate_models
 
 
-def index(self, request):
+def index(self: FlaskView, request: Request) -> GRestResponse:
     try:
         # patch __log
         self.__log = self._GRest__log
@@ -47,7 +50,7 @@ def index(self, request):
                                    missing="?")
         }
 
-        (primary, secondary) = validate_models(self)
+        (primary, _) = validate_models(self)
 
         query_data = validate_input(
             __validation_rules__, request, location="query")
@@ -86,5 +89,5 @@ def index(self, request):
             raise HTTPException(msg.NO_ITEM_EXISTS.format(
                 model=primary.model_name), 404)
     except DoesNotExist as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)

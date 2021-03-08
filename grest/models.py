@@ -18,12 +18,13 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from typing import Iterable, Dict, Any, Optional, Union
+from typing import Any, Dict, Iterable, Optional, Union
 
-from neomodel import (ArrayProperty, BooleanProperty, DateProperty,  # type: ignore
-                      DateTimeProperty, EmailProperty, IntegerProperty,
-                      JSONProperty, StringProperty, UniqueIdProperty,
-                      relationship_manager, NodeSet, StructuredNode, StructuredRel)
+from neomodel import (ArrayProperty, BooleanProperty,  # type: ignore
+                      DateProperty, DateTimeProperty, EmailProperty,
+                      IntegerProperty, JSONProperty, NodeSet, StringProperty,
+                      StructuredNode, StructuredRel, UniqueIdProperty,
+                      relationship_manager)
 from webargs import fields  # type: ignore
 
 
@@ -60,7 +61,8 @@ class NodeAndRelationHelper(object):
                 secondary_model_name: str,
                 secondary_selection_field: Optional[str] = None,
                 secondary_id: Optional[str] = None,
-                retrieve_relations: bool = False) -> Optional[Union[Dict[str, Any], Iterable[Dict[str, Any]]]]:
+                retrieve_relations: bool = False) \
+            -> Optional[Union[Dict[str, Any], Iterable[Dict[str, Any]]]]:
         """
         Get all relations and their associated relationship information
         """

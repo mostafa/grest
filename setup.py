@@ -18,8 +18,9 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from grest import __version__
 from setuptools import setup  # type: ignore
+
+from grest import __version__
 
 # Extract requirements from requirements.txt
 REQUIREMENTS = [r.rstrip() for r in open("requirements.txt").readlines()]

@@ -17,23 +17,25 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from urllib.parse import unquote
+from typing import Optional
 
+from flask_classful import FlaskView  # type: ignore
 from neomodel import db  # type: ignore
-from neomodel.exception import DoesNotExist, RequiredProperty, UniqueProperty  # type: ignore
+from neomodel.exceptions import (DoesNotExist,  # type: ignore
+                                 RequiredProperty, UniqueProperty)
 
 import grest.messages as msg
+from grest import GRestResponse
 from grest.exceptions import HTTPException
 from grest.global_config import ENABLE_DELETE_ALL
 from grest.utils import serialize
 from grest.validation import validate_models
 
 
-def delete(self,
-           request,
-           primary_id,
-           secondary_model_name=None,
-           secondary_id=None):
+def delete(self: FlaskView,
+           primary_id: str,
+           secondary_model_name: Optional[str] = None,
+           secondary_id: Optional[str] = None) -> GRestResponse:
     try:
         # patch __log
         self.__log = self._GRest__log
@@ -60,7 +62,7 @@ def delete(self,
             # user either wants to delete a relation or
             # has provided invalid information
             if hasattr(primary_selected_item, secondary.model_name):
-                relation_exists = primary_selected_item.relation_exists(
+                relation_exists = primary_selected_item.relation_exists(  # type: ignore
                     secondary.model_name,
                     secondary_selected_item)
                 if not relation_exists:
@@ -86,24 +88,26 @@ def delete(self,
                   secondary.model is None,
                   secondary.id is None]):
             with db.transaction:
-                if primary_selected_item.delete():
+                if primary_selected_item.delete():  # type: ignore
                     return serialize(dict(result="OK"))
                 else:
                     raise HTTPException(msg.DELETE_FAILED, 500)
         else:
             raise HTTPException(msg.RELATION_DOES_NOT_EXIST, 404)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except UniqueProperty as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.NON_UNIQUE_PROPERTY, 409)
     except RequiredProperty as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)
 
+    return None
 
-def delete_all(self, request):
+
+def delete_all(self: FlaskView) -> GRestResponse:
     try:
         # patch __log
         self.__log = self._GRest__log
@@ -121,11 +125,11 @@ def delete_all(self, request):
         else:
             raise HTTPException(msg.FEATURE_IS_DISABLED, 403)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
     except UniqueProperty as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.NON_UNIQUE_PROPERTY, 409)
     except RequiredProperty as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.REQUIRE_PROPERTY_MISSING, 500)

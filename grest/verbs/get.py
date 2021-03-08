@@ -17,17 +17,23 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from typing import Optional
 
+from flask_classful import FlaskView  # type: ignore
 from inflection import pluralize, singularize
-from neomodel.exception import DoesNotExist  # type: ignore
+from neomodel.exceptions import DoesNotExist  # type: ignore
 
 import grest.messages as msg
+from grest import GRestResponse
 from grest.exceptions import HTTPException
 from grest.utils import serialize
 from grest.validation import validate_models
 
 
-def get(self, primary_id, secondary_model_name=None, secondary_id=None):
+def get(self: FlaskView,
+        primary_id: str,
+        secondary_model_name: Optional[str] = None,
+        secondary_id: Optional[str] = None) -> GRestResponse:
     try:
         # patch __log
         self.__log = self._GRest__log
@@ -77,5 +83,5 @@ def get(self, primary_id, secondary_model_name=None, secondary_id=None):
                 raise HTTPException(msg.MODEL_DOES_NOT_EXIST.format(
                     model=primary.model_name), 404)
     except (DoesNotExist, AttributeError) as e:
-        self.__log.exception(e.message)
+        self.__log.exception(str(e))
         raise HTTPException(msg.ITEM_DOES_NOT_EXIST, 404)
