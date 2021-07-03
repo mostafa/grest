@@ -17,7 +17,7 @@
 # along with grest.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from typing import Optional
+from typing import Optional, Any
 
 from flask import request
 from flask_classful import FlaskView  # type: ignore
@@ -77,7 +77,7 @@ def post(self: FlaskView,
                     # If there is a relation model between the two,
                     # validate requests based on that
                     relation_model = relation.definition["model"]
-                    json_data = {}
+                    json_data: Optional[Any] = None
                     if relation_model is not None:
                         # TODO: find a way to validate relationships
                         json_data = request.get_json(silent=True)

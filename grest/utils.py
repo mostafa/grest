@@ -22,13 +22,14 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 import dicttoxml  # type: ignore
 import yaml
-from flask import jsonify, request
+from flask import jsonify, request, Response
 from markupsafe import escape_silent as escape
 
 import grest.global_config as global_config
 import grest.messages as msg
 
-SerializedType = Union[str, bytes, Tuple[Union[str, bytes, int], int]]
+SerializedType = Union[str, bytes, Tuple[Union[str, bytes, int], int],
+                       Response, Tuple[Response, int]]
 
 
 def get_header(name: str) -> Optional[str]:
