@@ -31,6 +31,7 @@ jobs:
           python setup.py -q install
       - name: Check types and syntax 🦆
         run: |
+          pip install types-PyYAML
           mypy --exclude 'build/*' .
           flake8 --exclude 'build/*' .
       - name: Test 🧪
