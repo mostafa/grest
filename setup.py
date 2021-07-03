@@ -33,7 +33,7 @@ setup(name="pygrest",
       author_email="mostafamoradian0@gmail.com",
       license="GPLv3",
       include_package_data=True,
-      packages=["grest", "grest.verbs", "examples", "tests", "docs"],
+      packages=["grest", "grest.verbs"],
       long_description="""
 gREST
 =====
