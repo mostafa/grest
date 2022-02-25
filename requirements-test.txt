@@ -1,4 +1,4 @@
-pytest-runner==5.3.1
+pytest-runner==6.0.0
 pytest-flask==1.2.0
 coveralls==3.1.0
 mypy==0.910
