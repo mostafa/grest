@@ -2,4 +2,4 @@ pytest-runner==5.3.1
 pytest-flask==1.2.0
 coveralls==3.1.0
 mypy==0.910
-flake8==3.9.2
+flake8==5.0.4
