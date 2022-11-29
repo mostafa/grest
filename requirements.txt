@@ -1,5 +1,5 @@
 Autologging==1.3.2
-dicttoxml==1.7.4
+dicttoxml==1.7.11
 Flask==2.0.1
 Flask_Classful==0.14.2
 inflection==0.5.1
